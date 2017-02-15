@@ -1,5 +1,9 @@
 NVCC=nvcc
-ARCH=sm_30
+ARCH?=sm_30
+
+BIN_DIR?=bin
+SRC_DIR?=src
+INC_DIR=include
 
 CUDA_PATH?=/usr/local/cuda
 CUDA_INCLUDE=$(CUDA_PATH)/include
@@ -9,34 +13,37 @@ CUDNN_PATH?=/usr/local/cudnn
 CUDNN_INCLUDE=$(CUDNN_PATH)/include
 CUDNN_LIB64=$(CUDNN_PATH)/lib64
 
-BIN_DIR?=bin
-SRC_DIR?=src
-INC_DIR=include
+CC=$(CUDA_PATH)/bin/$/$(NVCC)
+IFLAGS=-I $(INC_DIR) -I $(CUDA_INCLUDE) -I $(CUDNN_INCLUDE)
+LFLAGS=-L $(CUDA_LIB64) -L $(CUDNN_LIB64) -lcudnn -lcurand
+NVCC_FLAGS=$(IFLAGS) $(LFLAGS) -arch=$(ARCH) -std=c++11
 
 MKDIR=mkdir -p
+RM_RF=rm -rf
 
-all: version forward backward_data backward_filter
+##############################
+# Add programs here
+##############################
+UTIL=version
+CONV=forward_conv backward_data_conv backward_filter_conv
+##############################
 
-version:
+UTIL_BENCH=$(addprefix $(BIN_DIR)/, $(UTIL:=.bench))
+CONV_BENCH=$(addprefix $(BIN_DIR)/, $(CONV:=.bench))
+HEADERS=$(wildcard $(INC_DIR)/*.hpp)
+
+#TODO: Add dependencies
+
+all: bin $(UTIL_BENCH) $(CONV_BENCH)
+
+bin:
 	$(MKDIR) $(BIN_DIR)
-	$(CUDA_PATH)/bin/$(NVCC) $(SRC_DIR)/version.cu -o $(BIN_DIR)/version -I $(CUDA_PATH)/include -L $(CUDA_LIB64) -I $(CUDNN_PATH)/include/ -L $(CUDNN_PATH)/lib64/ -lcudnn -arch=$(ARCH) -std=c++11
 
-forward:
-	$(MKDIR) $(BIN_DIR)
-	$(CUDA_PATH)/bin/$(NVCC) $(SRC_DIR)/forward_conv.cu -o $(BIN_DIR)/forward_conv -I $(INC_DIR)/ -I $(CUDA_PATH)/include -L $(CUDA_LIB64) -I $(CUDNN_PATH)/include/ -L $(CUDNN_PATH)/lib64/ -lcudnn -lcurand -arch=$(ARCH) -std=c++11
-
-
-backward_data:
-	$(MKDIR) $(BIN_DIR)
-	$(CUDA_PATH)/bin/$(NVCC) $(SRC_DIR)/backward_data_conv.cu -o $(BIN_DIR)/backward_data_conv -I $(INC_DIR)/ -I $(CUDA_PATH)/include -L $(CUDA_LIB64) -I $(CUDNN_PATH)/include/ -L $(CUDNN_PATH)/lib64/ -lcudnn -lcurand -arch=$(ARCH) -std=c++11
-
-
-backward_filter:
-	$(MKDIR) $(BIN_DIR)
-	$(CUDA_PATH)/bin/$(NVCC) $(SRC_DIR)/backward_filter_conv.cu -o $(BIN_DIR)/backward_filter_conv -I $(INC_DIR)/ -I $(CUDA_PATH)/include -L $(CUDA_LIB64) -I $(CUDNN_PATH)/include/ -L $(CUDNN_PATH)/lib64/ -lcudnn -lcurand -arch=$(ARCH) -std=c++11
+$(BIN_DIR)/%.bench: $(SRC_DIR)/%.cu $(HEADERS)
+	$(CC) $< -o $@ $(NVCC_FLAGS)
 
 clean:
-	rm -rf $(BIN_DIR)
+	$(RM_RF) $(BIN_DIR)
 
 rebuild: clean all
 
