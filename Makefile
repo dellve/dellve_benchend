@@ -15,7 +15,7 @@ INC_DIR=include
 
 MKDIR=mkdir -p
 
-all: version forward backward_data
+all: version forward backward_data backward_filter
 
 version:
 	$(MKDIR) $(BIN_DIR)
@@ -29,6 +29,11 @@ forward:
 backward_data:
 	$(MKDIR) $(BIN_DIR)
 	$(CUDA_PATH)/bin/$(NVCC) $(SRC_DIR)/backward_data_conv.cu -o $(BIN_DIR)/backward_data_conv -I $(INC_DIR)/ -I $(CUDA_PATH)/include -L $(CUDA_LIB64) -I $(CUDNN_PATH)/include/ -L $(CUDNN_PATH)/lib64/ -lcudnn -lcurand -arch=$(ARCH) -std=c++11
+
+
+backward_filter:
+	$(MKDIR) $(BIN_DIR)
+	$(CUDA_PATH)/bin/$(NVCC) $(SRC_DIR)/backward_filter_conv.cu -o $(BIN_DIR)/backward_filter_conv -I $(INC_DIR)/ -I $(CUDA_PATH)/include -L $(CUDA_LIB64) -I $(CUDNN_PATH)/include/ -L $(CUDNN_PATH)/lib64/ -lcudnn -lcurand -arch=$(ARCH) -std=c++11
 
 clean:
 	rm -rf $(BIN_DIR)

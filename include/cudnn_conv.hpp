@@ -22,12 +22,15 @@ private:
 
     size_t fwd_workspace_size_;
     size_t bwd_data_workspace_size_;
+    size_t bwd_filter_workspace_size_;
 
     Tensor<float> fwd_workspace_;
     Tensor<float> bwd_data_workspace_;
+    Tensor<float> bwd_filter_workspace_;
 
     cudnnConvolutionFwdAlgo_t fwd_algo_;
     cudnnConvolutionBwdDataAlgo_t bwd_data_algo_;
+    cudnnConvolutionBwdFilterAlgo_t bwd_filter_algo_;
 
     const float alpha_ = 1.f;
     const float beta_  = 0.f;
@@ -78,8 +81,36 @@ public:
         fwd_workspace_ = TensorCreate::zeros(std::vector<int>{static_cast<int>(fwd_workspace_size_ / sizeof(float)), 1});
     }
 
+    void initBackwardFilter(void){
+        initForward();
+    
+        // Pick backward convolution algorithm
+        CHECK_CUDNN_ERROR(cudnnGetConvolutionBackwardFilterAlgorithm(cudnn_handle_.handle(),
+                                                                     x_desc_.desc(),
+                                                                     y_desc_.desc(),
+                                                                     conv_desc_.desc(),
+                                                                     w_desc_.desc(),
+                                                                     CUDNN_CONVOLUTION_BWD_FILTER_PREFER_FASTEST,
+                                                                     0,
+                                                                     &bwd_filter_algo_));
+
+        // Backward params workspace
+        CHECK_CUDNN_ERROR(cudnnGetConvolutionBackwardFilterWorkspaceSize(cudnn_handle_.handle(),
+                                                                         x_desc_.desc(),
+                                                                         y_desc_.desc(),
+                                                                         conv_desc_.desc(),
+                                                                         w_desc_.desc(),
+                                                                         bwd_filter_algo_,
+                                                                         &bwd_filter_workspace_size_));
+
+
+
+        bwd_filter_workspace_ = TensorCreate::zeros(std::vector<int>{static_cast<int>(bwd_filter_workspace_size_ / sizeof(float)), 1});
+    }
+
     void initBackwardData(void) {
         initForward();
+        initBackwardFilter();
         // Pick backward wrt inputs convolution algorithm
         CHECK_CUDNN_ERROR(cudnnGetConvolutionBackwardDataAlgorithm(cudnn_handle_.handle(),
                                                                    w_desc_.desc(),
@@ -118,6 +149,24 @@ public:
                                                   y.begin()));
     }
 
+    void backwardFilter(Tensor<float> x, Tensor<float> delta, Tensor<float> dW) {
+        // Convolution Backward Filter
+        CHECK_CUDNN_ERROR(cudnnConvolutionBackwardFilter(cudnn_handle_.handle(),
+                                                         &alpha_,
+                                                         x_desc_.desc(),
+                                                         x.begin(),
+                                                         y_desc_.desc(),
+                                                         delta.begin(),
+                                                         conv_desc_.desc(),
+                                                         bwd_filter_algo_,
+                                                         bwd_filter_workspace_.begin(),
+                                                         bwd_filter_workspace_size_,
+                                                         &beta_,
+                                                         w_desc_.desc(),
+                                                         dW.begin()));
+    }
+
+
     void backwardData(Tensor<float> filter, Tensor<float> delta, Tensor<float> dX) {
         // Convolution Backward Data
         CHECK_CUDNN_ERROR(cudnnConvolutionBackwardData(cudnn_handle_.handle(),
@@ -133,7 +182,6 @@ public:
                                                        &beta_,
                                                        x_desc_.desc(),
                                                        dX.begin()));
-
     }
 
 

@@ -11,7 +11,7 @@
 #include "cudnn_conv_problem_set.hpp"
 #include "tensor.hpp"
 
-enum class CudnnConvMethod { FORWARD, BACKWARD_DATA };
+enum class CudnnConvMethod { FORWARD, BACKWARD_DATA, BACKWARD_FILTER };
 
 class CudnnConvDriver {
 private:
@@ -20,7 +20,7 @@ private:
     CudnnConvMethod method_;
     CudnnConvProblemSet problems_;
 
-    int k_, c_, r_, s_; // Filter parameters
+    int k_, c_, r_, s_; // lr parameters
     int n_, w_, h_; // Input parameters
     int pad_w_, pad_h_; // Padding
     int wstride_, hstride_; // Stride
@@ -30,12 +30,14 @@ public:
                     num_repeats_(50), 
                     method_(method),
                     problems_(problems) {
+        cudaFree(0);
         //TODO: make num_repeats configurable
         curandCreateGenerator(&curand_gen_, CURAND_RNG_PSEUDO_DEFAULT);
         curandSetPseudoRandomGeneratorSeed(curand_gen_, 42ULL);
     }
 
     int run(int problemNumber) {
+
         CudnnConv conv = createCudnnConv(problemNumber);
 
         switch(method_) {
@@ -45,6 +47,9 @@ public:
             case CudnnConvMethod::BACKWARD_DATA:
                 conv.initBackwardData();
                 return backwardData(conv);
+            case CudnnConvMethod::BACKWARD_FILTER:
+                conv.initBackwardFilter();
+                return backwardFilter(conv);
             default:
                 return 0;
         }
@@ -82,24 +87,56 @@ private:
         return fwd_time;
     }
 
-    int backwardData(CudnnConv &conv) {
+    int backwardFilter(CudnnConv &conv){
         auto filter = TensorCreate::rand(std::vector<int>{r_, s_, c_, k_}, curand_gen_);
         auto output = TensorCreate::zeros(conv.get_output_dims());
         auto input = TensorCreate::rand(std::vector<int>{w_, h_, c_, n_}, curand_gen_);
         auto delta = TensorCreate::rand(conv.get_output_dims(), curand_gen_);
         auto dW = TensorCreate::zeros(std::vector<int>{r_, s_, c_, k_});
 
-       
-        // Warm up backward
         conv.forward(input, filter, output);
-        conv.backwardData(input, delta, dW);
+        cudaDeviceSynchronize();
+        
+        conv.backwardFilter(input, delta, dW); // Warmup
+        cudaDeviceSynchronize(); 
 
+        auto start = std::chrono::steady_clock::now();
+
+        for (int i = 0; i < num_repeats_; ++i) {
+            conv.backwardFilter(input, delta, dW);
+        }
+
+        cudaDeviceSynchronize();
+        auto end = std::chrono::steady_clock::now();
+        int bwd_filter_time = static_cast<int>(std::chrono::duration<double, std::micro>(end - start).count() / num_repeats_);
+        
+        return bwd_filter_time;
+        
+    }
+
+    int backwardData(CudnnConv &conv) {
+        auto filter = TensorCreate::rand(std::vector<int>{r_, s_, c_, k_}, curand_gen_);
+        auto output = TensorCreate::zeros(conv.get_output_dims());
+        auto input = TensorCreate::rand(std::vector<int>{w_, h_, c_, n_}, curand_gen_);
+        auto delta = TensorCreate::rand(conv.get_output_dims(), curand_gen_);
+        auto dW = TensorCreate::zeros(std::vector<int>{r_, s_, c_, k_});
+        auto dX = TensorCreate::zeros(std::vector<int>{w_, h_, c_, n_});
+
+       
+        // Run forward
+        conv.forward(input, filter, output);
+        cudaDeviceSynchronize();
+    
+        conv.backwardFilter(input, delta, dW);
+        cudaDeviceSynchronize();
+        
+	    conv.backwardData(filter, delta, dX);
         cudaDeviceSynchronize();
         auto start = std::chrono::steady_clock::now();
 
         for (int i = 0; i < num_repeats_; ++i) {
             // Backward pass wrt weights
-            conv.backwardData(input, delta, dW);
+            conv.backwardData(filter, delta, dX);
         }
 
         cudaDeviceSynchronize();
