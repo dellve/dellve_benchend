@@ -109,8 +109,6 @@ public:
     }
 
     void initBackwardData(void) {
-        initForward();
-        initBackwardFilter();
         // Pick backward wrt inputs convolution algorithm
         CHECK_CUDNN_ERROR(cudnnGetConvolutionBackwardDataAlgorithm(cudnn_handle_.handle(),
                                                                    w_desc_.desc(),
