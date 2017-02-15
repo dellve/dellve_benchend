@@ -72,8 +72,8 @@ private:
     
         //Warm up
         conv.forward(input, filter, output);
-    
         cudaDeviceSynchronize();
+
         auto start = std::chrono::steady_clock::now();
     
         for (int i = 0; i < num_repeats_; ++i) {
@@ -88,15 +88,10 @@ private:
     }
 
     int backwardFilter(CudnnConv &conv){
-        auto filter = TensorCreate::rand(std::vector<int>{r_, s_, c_, k_}, curand_gen_);
-        auto output = TensorCreate::zeros(conv.get_output_dims());
         auto input = TensorCreate::rand(std::vector<int>{w_, h_, c_, n_}, curand_gen_);
         auto delta = TensorCreate::rand(conv.get_output_dims(), curand_gen_);
         auto dW = TensorCreate::zeros(std::vector<int>{r_, s_, c_, k_});
 
-        conv.forward(input, filter, output);
-        cudaDeviceSynchronize();
-        
         conv.backwardFilter(input, delta, dW); // Warmup
         cudaDeviceSynchronize(); 
 
@@ -116,22 +111,12 @@ private:
 
     int backwardData(CudnnConv &conv) {
         auto filter = TensorCreate::rand(std::vector<int>{r_, s_, c_, k_}, curand_gen_);
-        auto output = TensorCreate::zeros(conv.get_output_dims());
-        auto input = TensorCreate::rand(std::vector<int>{w_, h_, c_, n_}, curand_gen_);
         auto delta = TensorCreate::rand(conv.get_output_dims(), curand_gen_);
-        auto dW = TensorCreate::zeros(std::vector<int>{r_, s_, c_, k_});
         auto dX = TensorCreate::zeros(std::vector<int>{w_, h_, c_, n_});
-
        
-        // Run forward
-        conv.forward(input, filter, output);
-        cudaDeviceSynchronize();
-    
-        conv.backwardFilter(input, delta, dW);
-        cudaDeviceSynchronize();
-        
 	    conv.backwardData(filter, delta, dX);
         cudaDeviceSynchronize();
+
         auto start = std::chrono::steady_clock::now();
 
         for (int i = 0; i < num_repeats_; ++i) {
