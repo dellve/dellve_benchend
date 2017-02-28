@@ -3,13 +3,11 @@
 
 #include "cudnn_conv_driver.hpp"
 #include "cudnn_conv_problem_set.hpp"
+#include "cli_parser.hpp"
 
 int main(int argc, char *argv[]) {
-    if(argc == 1) {
-        printf("Pass in csv of problem sets!\n");
-        exit(0);
-    }
-    CudnnConvProblemSet problems(argv[1]);
+    CLIParser options(argc, argv); 
+    CudnnConvProblemSet problems(options.getProblemSetFile());
     CudnnConvDriver driver(CudnnConvMethod::FORWARD, problems);
 
     for (auto i = 0; i < problems.getSize(); i++) {
