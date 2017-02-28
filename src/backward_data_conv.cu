@@ -5,7 +5,11 @@
 #include "cudnn_conv_problem_set.hpp"
 
 int main(int argc, char *argv[]) {
-    CudnnConvProblemSet problems(std::string("blah"));
+    if(argc == 1) {
+        printf("Pass in csv of problem sets!\n");
+        exit(0);
+    }
+    CudnnConvProblemSet problems(argv[1]);
     CudnnConvDriver driver(CudnnConvMethod::BACKWARD_DATA, problems);
 
     for (auto i = 0; i < problems.getSize(); i++) {

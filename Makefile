@@ -15,7 +15,7 @@ CUDNN_LIB64=$(CUDNN_PATH)/lib64
 
 CC=$(CUDA_PATH)/bin/$/$(NVCC)
 IFLAGS=-I $(INC_DIR) -I $(CUDA_INCLUDE) -I $(CUDNN_INCLUDE)
-LFLAGS=-L $(CUDA_LIB64) -L $(CUDNN_LIB64) -lcudnn -lcurand
+LFLAGS=-L $(CUDA_LIB64) -L $(CUDNN_LIB64) -lcudnn -lcurand -lpthread
 NVCC_FLAGS=$(IFLAGS) $(LFLAGS) -arch=$(ARCH) -std=c++11
 
 MKDIR=mkdir -p
