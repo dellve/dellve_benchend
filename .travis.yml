@@ -16,6 +16,6 @@ install:
     - pip install coverage
     - pip install coveralls
 script:
-    coverage run --source=dellve pytest
+    coverage run --source=dellve setup.py test
 after_success:
     coveralls
