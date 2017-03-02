@@ -14,7 +14,6 @@ setup(
         'click',
         'daemonocle',
         'pick',
-        'pytest',
         'pyyaml',
         'zmq'
     ],
@@ -22,5 +21,7 @@ setup(
         [console_scripts]
         dellve=dellve.dellve:cli
     ''',
+    setup_requires=['pytest-runner'],
+    tests_require=['pytest']
 )
 
