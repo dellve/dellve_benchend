@@ -14,6 +14,7 @@ setup(
         'click',
         'daemonocle',
         'pick',
+        'pytest',
         'pyyaml',
         'zmq'
     ],
