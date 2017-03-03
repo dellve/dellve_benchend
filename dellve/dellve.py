@@ -23,7 +23,7 @@ def start(config_file, debug, username, password):
     """
     click.echo('Starting benchmark service...')
     config.load(config_file) # load DELLve configuration
-    service.DELLveService().start() # start DELLve daemon service
+    service.DELLveService(debug).start() # start DELLve daemon service
 
 @cli.command('stop', short_help='Stops the benchmark service.')
 def stop():

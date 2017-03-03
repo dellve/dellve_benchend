@@ -1,18 +1,25 @@
+import config
+import sys
+import time
 
 class DELLveTooDeepException(Exception): pass
 
 class DELLveWorker(object):
 
+    def __init__(self):
+        self.terminate = False
+
     def start(self):
-        raise DELLveTooDeepException()
+        while True:
+            time.sleep(1)
 
     def stop(self):
-        raise DELLveTooDeepException()
+        self.terminate = True
 
     @property
     def pidfile(self):
-        raise DELLveTooDeepException()
+        return '.dellve/dellve.pid'
 
     @property
     def workdir(self):
-        raise DELLveTooDeepException()
+        return '.dellve'
