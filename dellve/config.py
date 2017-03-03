@@ -23,7 +23,9 @@ def load_yaml(file):
     @return     { description_of_the_return_value }
     """
     import yaml
-    __config.update(yaml.load(file))
+    data = yaml.load(file)
+    if data:
+        __config.update(data)
 
 def load_json(file):
     """
@@ -34,7 +36,9 @@ def load_json(file):
     @return     { description_of_the_return_value }
     """
     import json
-    __config.update(json.load(file))
+    data = json.load(file)
+    if data:
+        __config.update(data)
 
 def get(name):
     """
