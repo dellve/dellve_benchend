@@ -1,0 +1,7 @@
+
+zmq-pub-host: localhost
+zmq-pub-port: 5555
+zmq-sub-host: localhost
+zmq-sub-port: 5556
+plugins-path: ./plugins
+plugins: ['dellvednn']

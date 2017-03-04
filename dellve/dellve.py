@@ -4,25 +4,26 @@ import pick
 import service
 
 @click.group()
-def cli():
+@click.option('--config-file', 'config_file', default='dellve.config.yaml',
+    help='Configuration file name.', type=click.File('r'))
+def cli(config_file):
     """
     DELLve benchmark command line interface.
 
     Type 'dellve COMMAND --help to see help for commands listed below.
     """
+    print 'Loading configuration file...'
+    config.load(config_file) # load DELLve configuration
 
 @cli.command('start', short_help='Starts the benchmark service.')
-@click.option('--config-file', 'config_file', default='dellve.config.yaml',
-    help='Configuration file name.', type=click.File('r'))
 @click.option('--debug', default=False, is_flag=True, help='Debug mode.')
 @click.option('--username', prompt=True)
 @click.option('--password', prompt=True, hide_input=True)
-def start(config_file, debug, username, password):
+def start(debug, username, password):
     """
     Starts DELLve benchmark background service.
     """
     click.echo('Starting benchmark service...')
-    config.load(config_file) # load DELLve configuration
     service.DELLveService(debug).start() # start DELLve daemon service
 
 @cli.command('stop', short_help='Stops the benchmark service.')
