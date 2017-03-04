@@ -4,6 +4,8 @@ import loader
 import sys
 import time
 import zmq.green as zmq
+import re
+import stringcase
 
 class DELLveTooDeepException(Exception): pass
 
@@ -13,34 +15,59 @@ class DELLveWorker(object):
         self.plugins = loader.load_plugins()
         print self.plugins
 
+    def command(self, server_id, command_type, command_data):
+        command_name = '_'.join(['command', stringcase.snakecase(command_type)])
+        method = getattr(self, command_name)(server_id, command_data)
+
+    def command_start_benchmark(self, server_id, command_data):
+        print 'Starting benchmark: ', str(server_id), str(command_data)
+
+    def command_stop_benchmark(self, server_id, command_data):
+        print 'Stopping benchmark: ', str(server_id), str(command_data)
+
     def start(self):
-        # Socket to talk to server
+        # TODO: CLEAN THIS FUNCTION UP
+
         context = zmq.Context()
         socket = context.socket(zmq.SUB)
 
-        print "Connecting to backend via ZeroMQ..."
+        command_re = re.compile('(?P<server_id>\d+)(?:\s+)'     + \
+                                '(?P<command_type>\w+)(?:\s+)'  + \
+                                '(?P<command_data>.*$)')
 
-        print "tcp://%s:%d" % \
+        print 'Connecting to backend via ZeroMQ...'
+
+        print 'tcp://%s:%d' % \
             (config.get('zmq-sub-host'), config.get('zmq-sub-port'))
 
-        socket.connect ("tcp://%s:%d" % \
+        socket.connect ('tcp://%s:%d' % \
             (config.get('zmq-sub-host'), config.get('zmq-sub-port')))
 
-        # topicfilter = "1"
-        # socket.setsockopt(zmq.SUBSCRIBE, topicfilter)
-
-        fifo = []
+        socket.setsockopt(zmq.SUBSCRIBE, '1') # WE NEED THIS LINE
 
         def serve(socket):
             while True:
-                fifo.append(socket.recv())
-                # print "Received request from backend: ", message
+                gevent.sleep(1)
+                match = command_re.match(socket.recv())
+
+                # TODO: deal with exceptions...
+
+                if not match:
+                    raise DELLveTooDeepException(':/')
+                else:
+                    match_groupdict = match.groupdict()
+
+                    try:
+                        self.command(**match_groupdict)
+                    except AttributeError e:
+                        raise NotImplementedError(':/')
+
+                # Note: match may not work out, be careful
 
         server = gevent.spawn(serve, socket)
 
         while True:
-            for item in fifo:
-                print item
+            gevent.sleep(1)
 
 
     def stop(self):

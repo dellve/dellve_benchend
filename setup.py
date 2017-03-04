@@ -13,8 +13,10 @@ setup(
     install_requires=[
         'click',
         'daemonocle',
+        'gevent',
         'pick',
         'pyyaml',
+        'stringcase',
         'zmq'
     ],
     entry_points='''
