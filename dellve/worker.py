@@ -25,6 +25,12 @@ class DELLveWorker(object):
     def command_stop_benchmark(self, server_id, command_data):
         print 'Stopping benchmark: ', str(server_id), str(command_data)
 
+    def command_start_metric_stream(self, server_id, command_data):
+        print 'Starting metric stream: ', str(server_id), str(command_data)
+
+    def command_stop_metric_stream(self, server_id, command_data):
+        print 'Stopping metric stream: ', str(server_id), str(command_data)
+
     def start(self):
         # TODO: CLEAN THIS FUNCTION UP
 
@@ -59,7 +65,7 @@ class DELLveWorker(object):
 
                     try:
                         self.command(**match_groupdict)
-                    except AttributeError e:
+                    except AttributeError as e:
                         raise NotImplementedError(':/')
 
                 # Note: match may not work out, be careful
