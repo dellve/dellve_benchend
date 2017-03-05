@@ -79,7 +79,7 @@ class DELLveWorker(object):
         self.thread.join()
 
     def stop(self, *args):
-        print 'Starting dellve worker ... '
+        print 'Stopping dellve worker ... '
         self.thread.stop()
         print '\bOK'
 
