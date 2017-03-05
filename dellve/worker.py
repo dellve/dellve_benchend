@@ -36,8 +36,7 @@ class DELLveWorkerMainThread(DELLveWorkerThread):
         self._port = int(port)
         self._server_id = server_id
         self._socket = socket
-        self._command_queue = gevent.queue.Queue() # command-queue
-        self._command_re = re.compile('(?P<server_id>\d+)(?:\s+)'      + \
+        self._command_re = re.compile('(?:^\d+\s+)'                    + \
                                       '(?P<command_name>\w+)(?:\s+)'   + \
                                       '(?P<command_data>.*$)')
 
@@ -54,10 +53,7 @@ class DELLveWorkerMainThread(DELLveWorkerThread):
         if match is None:
             raise NotImplementedError()
             # TODO: handle this gracefully
-
-        command = match.groupdict()
-
-        executor.execute(command['command_name'], command['command_data'])
+        executor.execute(**match.groupdict())
 
 class DELLveWorker(object):
 
