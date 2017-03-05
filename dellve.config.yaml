@@ -5,3 +5,4 @@ zmq-sub-host: localhost
 zmq-sub-port: 5556
 plugins-path: ./plugins
 plugins: ['dellvednn']
+server-id: 1
