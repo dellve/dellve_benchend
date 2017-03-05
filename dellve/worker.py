@@ -2,10 +2,6 @@ import config
 import executor
 import gevent
 import gevent.event
-import gevent.queue
-import loader
-import sys
-import time
 import zmq.green as zmq
 import re
 
