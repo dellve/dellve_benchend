@@ -7,8 +7,6 @@ import sys
 import time
 import zmq.green as zmq
 import re
-import stringcase
-import greenlet
 
 class DELLveWorkerThread(gevent.Greenlet):
     def __init__(self):
