@@ -7,11 +7,7 @@ class DELLveService(object):
 
     def __init__(self, debug=False):
 
-        dameon_worker_config = {
-            'server_id': 1
-        }
-
-        dameon_worker = worker.DELLveWorker(**dameon_worker_config)
+        dameon_worker = worker.DELLveWorker()
 
         if not os.path.exists(dameon_worker.workdir):
             os.makedirs(dameon_worker.workdir)
