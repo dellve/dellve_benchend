@@ -1,0 +1,22 @@
+language: python
+python:
+    # Note: we should enable support for more comprehensive testing
+    #       for different Python versions later; for now, faster 
+    #       builds are more preferrable.
+    # - "2.6"
+    - "2.7"
+    # - "3.2"
+    # - "3.3"
+    # - "3.4"
+    # - "3.5"
+    # - "3.5-dev" # 3.5 development branch
+    # - "3.6"
+    # - "3.6-dev" # 3.6 development branch
+    # - "3.7-dev" # 3.7 development branch
+    # - "nightly" # currently points to 3.7-dev
+install:
+    - pip install .
+    # - pip install coverage    # may need this later for code coverage 
+    # - pip install coveralls   # may need this later for code coverage
+script:
+    python setup.py test # TODO: calculate code coverage ...
