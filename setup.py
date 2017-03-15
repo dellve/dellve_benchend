@@ -1,5 +1,5 @@
 # Ensure that the user has setuptools!
-# import ez_setup; ez_setup.use_setuptools()
+import ez_setup; ez_setup.use_setuptools()
 
 from setuptools import setup, find_packages
 
@@ -10,7 +10,8 @@ setup(
     include_package_data=True,
     package_data={
         'dellve': [
-            'dellve.config.yaml'
+            'data/jinja2/*',
+            'data/config.yaml'
         ]
     },
     install_requires=[
@@ -18,12 +19,12 @@ setup(
         'daemonocle',
         'falcon',
         'gevent',
+        'jinja2',
         'pick',
         'pyyaml',
         'stringcase'
     ],
     setup_requires=[
-        'pybind11',
         'pytest-runner'
     ],
     tests_require=[

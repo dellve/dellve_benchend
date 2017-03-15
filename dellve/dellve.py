@@ -1,11 +1,16 @@
 import click
 import config
 import helper
+import os
 import service
 import pick
+import template
+
+data_path = os.path.join(os.path.dirname(__file__), 'data')
 
 @click.group()
-@click.option('--config-file', 'config_file', default='dellve.config.yaml',
+@click.option('--config-file', 'config_file',
+    default=os.path.join(data_path, 'config.yaml'),
     help='Configuration file name.', type=click.File('r'))
 def cli(config_file):
     """
@@ -15,7 +20,7 @@ def cli(config_file):
     """
     config.load(config_file) # load DELLve configuration
 
-@cli.command('ls', short_help='List the installed benchmarks.')
+@cli.command('ls', short_help='List installed benchmarks.')
 def ls():
     """
     Lists installed DELLve benchmarks.
@@ -88,6 +93,15 @@ def run(run_all):
 
     for benchmark_name,  in selected:
         benchmarks[benchmark_name]().run()
+
+
+@cli.command('new', short_help='Create a new benchmark.')
+def new():
+    """Generates the boilerplate code for a new DELLve-benchmark plugin"""
+    dir_name = click.prompt('Please enter a directory name', default='./')
+    package_name = click.prompt('Please enter a Python package name')
+    benchmark_name = click.prompt('Please enter a unique benchmark class name')
+    template.Template().render(dir_name, package_name, benchmark_name)
 
 if __name__ == '__main__':
     cli()

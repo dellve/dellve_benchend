@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 DELLve Benchmark Service
 ========================
 
@@ -25,4 +25,3 @@ dellve --help
 
 
 [![Coverage Status](https://coveralls.io/repos/github/dellve/dellve_benchend/badge.svg?branch=master)](https://coveralls.io/github/dellve/dellve_benchend?branch=master)
->>>>>>> 76fb80b440bd1071db560863f522eecb72aa070c
