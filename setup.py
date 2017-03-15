@@ -1,3 +1,6 @@
+# Ensure that the user has setuptools!
+# import ez_setup; ez_setup.use_setuptools()
+
 from setuptools import setup, find_packages
 
 setup(
@@ -19,11 +22,15 @@ setup(
         'pyyaml',
         'stringcase'
     ],
+    setup_requires=[
+        'pybind11',
+        'pytest-runner'
+    ],
+    tests_require=[
+        'pytest'
+    ],
     entry_points='''
         [console_scripts]
         dellve=dellve.dellve:cli
-    ''',
-    setup_requires=['pytest-runner'],
-    tests_require=['pytest']
+    '''
 )
-

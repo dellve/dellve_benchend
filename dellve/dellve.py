@@ -1,7 +1,8 @@
 import click
 import config
-import pick
+import helper
 import service
+import pick
 
 @click.group()
 @click.option('--config-file', 'config_file', default='dellve.config.yaml',
@@ -12,10 +13,17 @@ def cli(config_file):
 
     Type 'dellve COMMAND --help to see help for commands listed below.
     """
-    print 'Loading configuration file...'
     config.load(config_file) # load DELLve configuration
 
-@cli.command('start', short_help='Starts the benchmark service.')
+@cli.command('ls', short_help='List the installed benchmarks.')
+def ls():
+    """
+    Lists installed DELLve benchmarks.
+    """
+    for benchmark in helper.load_benchmarks():
+        print ' ', benchmark.name
+
+@cli.command('start', short_help='Start the benchmark service.')
 @click.option('--debug', default=False, is_flag=True, help='Debug mode.')
 @click.option('--username', prompt=True)
 @click.option('--password', prompt=True, hide_input=True)
@@ -26,7 +34,7 @@ def start(debug, username, password):
     click.echo('Starting benchmark service...')
     service.DELLveService(debug).start() # start DELLve daemon service
 
-@cli.command('stop', short_help='Stops the benchmark service.')
+@cli.command('stop', short_help='Stop the benchmark service.')
 def stop():
     """
     Stops DELLve benchmark background service.
@@ -34,7 +42,7 @@ def stop():
     click.echo('Stopping benchmark service...')
     service.DELLveService().stop()
 
-@cli.command('status', short_help='Gets the status of benchmark service.')
+@cli.command('status', short_help='Get the status of benchmark service.')
 def status():
     """
     Gets the status DELLve benchmark background service.
@@ -42,29 +50,44 @@ def status():
     service.DELLveService().status()
 
 @cli.command('run', short_help='Run the benchmarks.')
-@click.option('--all', default=False, is_flag=True, help='Run all benchmarks.')
-def run(all):
+@click.option('--all', '-A', 'run_all', default=False, is_flag=True,
+    help='Run all benchmarks.')
+def run(run_all):
     """Runs the user specified benchmarks"""
-    title = '\n'.join([
-        'Please select benchmarks to run:',
-        '',
-        'Press UP and DOWN arrow keys to navigate',
-        'Press SPACE to select benchmarks',
-        'Press ENTER to proceede'
-    ])
 
-    options = [
-        'DELLveShallow',
-        'DELLveDeep',
-        'DELLveDeep++',
-        'DELLveUltraDeepPremium'
-    ]
+    # Load benchmarks into {'name': class} dictionary
+    benchmarks = {b.name: b for b in helper.load_benchmarks()}
 
-    selected = pick.pick(options, title, indicator='+', multi_select=True)
+    if len(benchmarks) < 1: # ensure there're some benchmarks to be run
+        click.echo('Please, install at least one benchmark plugin.', err=True)
+        return
 
-    from worker import DELLveTooDeepException
+    # Note: user may select to run all benchmarks with --all/-A flag;
+    #       if -all/-A flag is set, we run every single one of the 'benchmarks';
+    #       otherwise, we prompt user to select a subset of the 'benchmarks'.
 
-    raise DELLveTooDeepException('Please contact Joseph Shalabi for tech support.')
+    if not run_all:
+        options = benchmarks.keys()
+        title = '\n'.join([
+            'Please select benchmarks to run:',
+            '',
+            'Press UP and DOWN arrow keys to navigate',
+            'Press SPACE to select benchmarks',
+            'Press ENTER to proceede'
+        ])
+
+        # Ask user to pick benchmarks that he/she/ze wants to run
+        picked = pick.pick(options, title, indicator='+', multi_select=True)
+
+        # Note: pick() returns list of (name, index) pairs; since we only care
+        #       about names in this list, we remove indexes from it below
+        selected = {name for name, index in picked}
+
+        # Filter out benchmarks that weren't selected
+        benchmarks = filter(lambda k,v: k in selected, benchmarks.iteritems())
+
+    for benchmark_name,  in selected:
+        benchmarks[benchmark_name]().run()
 
 if __name__ == '__main__':
     cli()

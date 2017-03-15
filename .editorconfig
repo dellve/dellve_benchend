@@ -3,20 +3,20 @@
 root = true
 
 [*]
-indent_size 	= 4
-indent_style 	= tab
-end_of_line 	= lf
+indent_size = 4
+indent_style = tab
+end_of_line = lf
 
-[*py]
-indent_size 	= 4
-indent_style 	= space
-insert_final_newline 			= true
-trim_trailing_whitespace 	= true
+[{*py,*.yaml,*.yml}]
+indent_size = 4
+indent_style = space
+insert_final_newline = true
+trim_trailing_whitespace = true
 
 [*.md]
-insert_final_newline 			= true
-trim_trailing_whitespace 	= false
+insert_final_newline = true
+trim_trailing_whitespace = false
 
 [{package.json,.travis.yml}]
-indent_style 	= space
-indent_size 	= 2
+indent_style = space
+indent_size = 2
