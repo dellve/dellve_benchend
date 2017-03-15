@@ -1,4 +1,3 @@
-
 DELLve Benchmark Service
 ========================
 
@@ -17,8 +16,6 @@ Check out CLI help:
 ```bash
 dellve --help
 ```
-=======
-# dellve_benchend
 
 
 [![Build Status](https://travis-ci.org/dellve/dellve_benchend.svg?branch=dev)](https://travis-ci.org/dellve/dellve_benchend)
