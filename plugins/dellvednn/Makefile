@@ -26,7 +26,7 @@ RM_RF=rm -rf
 ##############################
 UTIL=version
 CONV=forward_conv backward_data_conv backward_filter_conv
-POOL=forward_pool backward_pool
+POOL=forward_pool_max forward_pool_avgpad forward_pool_avgnopad backward_pool_max backward_pool_avgpad backward_pool_avgnopad
 SOFTMAX=forward_softmax_fast forward_softmax_accurate forward_softmax_log backward_softmax_fast backward_softmax_accurate backward_softmax_log
 ACTIVATION=forward_activation backward_activation
 ##############################
@@ -43,7 +43,7 @@ HEADERS=$(wildcard $(INC_DIR)/*.hpp)
 all: bin $(UTIL_BENCH) $(CONV_BENCH) $(POOL_BENCH) $(SOFTMAX_BENCH) $(ACTIVATION_BENCH)
 
 # TEMP ALL for fast make
-# all: bin $(SOFTMAX_BENCH)
+# all: bin $(POOL_BENCH)
 
 bin:
 	$(MKDIR) $(BIN_DIR)

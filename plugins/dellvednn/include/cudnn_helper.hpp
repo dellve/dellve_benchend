@@ -152,12 +152,13 @@ class PoolingDescriptor {
         }
     };
 public:
-    PoolingDescriptor(int win_h, int win_w, int pad_h, int pad_w, int hstride, int wstride) :
+    PoolingDescriptor(int win_h, int win_w, int pad_h, int pad_w, int hstride, int wstride,
+                      cudnnPoolingMode_t mode) :
         desc_(new cudnnPoolingDescriptor_t, PoolingDescriptorDeleter()) {
         // TODO: Extend Pooling to support more algorithms (currently hardcoded to MAX    
         CHECK_CUDNN_ERROR(cudnnCreatePoolingDescriptor(desc_.get()));
         CHECK_CUDNN_ERROR(cudnnSetPooling2dDescriptor(*desc_,
-                                                      CUDNN_POOLING_MAX,
+                                                      mode,
                                                       CUDNN_NOT_PROPAGATE_NAN,
                                                       win_h,
                                                       win_w,
