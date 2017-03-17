@@ -8,7 +8,7 @@
 int main(int argc, char *argv[]) {
     CLIParser options(argc, argv); 
     CudnnSoftmaxProblemSet problems(options.getProblemSetFile());
-    CudnnSoftmaxDriver driver(CudnnSoftmaxMethod::FORWARD, problems, options.getNumRuns(),
+    CudnnSoftmaxDriver driver(CudnnSoftmaxForm::FORWARD_LOG, problems, options.getNumRuns(),
                             options.getGpus());
 
     printf("Starting Forward Softmax through %s set with %d runs\n", options.getProblemSetFile().c_str(), 

@@ -8,10 +8,10 @@
 int main(int argc, char *argv[]) {
     CLIParser options(argc, argv); 
     CudnnSoftmaxProblemSet problems(options.getProblemSetFile());
-    CudnnSoftmaxDriver driver(CudnnSoftmaxMethod::BACKWARD, problems, options.getNumRuns(),
+    CudnnSoftmaxDriver driver(CudnnSoftmaxForm::FORWARD_ACCURATE, problems, options.getNumRuns(),
                             options.getGpus());
 
-    printf("Starting Backward Softmax through %s set with %d runs\n", options.getProblemSetFile().c_str(), 
+    printf("Starting Forward Softmax through %s set with %d runs\n", options.getProblemSetFile().c_str(), 
             options.getNumRuns());
     for (auto i = 0; i < problems.getSize(); i++) {
         int time = driver.run(i);
