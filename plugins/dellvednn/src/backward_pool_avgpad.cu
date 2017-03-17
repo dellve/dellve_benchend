@@ -8,10 +8,10 @@
 int main(int argc, char *argv[]) {
     CLIParser options(argc, argv); 
     CudnnPoolProblemSet problems(options.getProblemSetFile());
-    CudnnPoolDriver driver(CudnnPoolMethod::BACKWARD, problems, options.getNumRuns(),
+    CudnnPoolDriver driver(CudnnPoolForm::BACKWARD_AVGPAD, problems, options.getNumRuns(),
                             options.getGpus());
 
-    printf("Starting Backward Pool through %s set with %d runs\n", options.getProblemSetFile().c_str(), 
+    printf("Starting Backward Pool Average with Pad through %s set with %d runs\n", options.getProblemSetFile().c_str(), 
             options.getNumRuns());
     for (auto i = 0; i < problems.getSize(); i++) {
         int time = driver.run(i);
