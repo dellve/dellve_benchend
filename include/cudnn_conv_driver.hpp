@@ -7,8 +7,10 @@
 #include <cuda.h>
 #include <curand.h>
 
+#include <unistd.h>
+
 #include "cudnn_conv.hpp"
-#include "cudnn_conv_problem_set.hpp"
+#include "cudnn_problem_set.hpp"
 #include "tensor.hpp"
 
 enum class CudnnConvMethod { FORWARD, BACKWARD_DATA, BACKWARD_FILTER };
@@ -24,21 +26,21 @@ private:
     int n_, w_, h_; // Input parameters
     int pad_w_, pad_h_; // Padding
     int wstride_, hstride_; // Stride
-    
+   
+    std::vector<int> gpus_; 
 public:
-    CudnnConvDriver(CudnnConvMethod method, CudnnConvProblemSet problems) :
-                    num_repeats_(50), 
+    CudnnConvDriver(CudnnConvMethod method, CudnnConvProblemSet problems, int numRuns, std::vector<int> gpus) :
+                    num_repeats_(numRuns),
+                    gpus_(gpus), 
                     method_(method),
                     problems_(problems) {
         cudaFree(0);
-        //TODO: make num_repeats configurable
         curandCreateGenerator(&curand_gen_, CURAND_RNG_PSEUDO_DEFAULT);
         curandSetPseudoRandomGeneratorSeed(curand_gen_, 42ULL);
     }
 
     int run(int problemNumber) {
-
-        CudnnConv conv = createCudnnConv(problemNumber);
+        CudnnConv conv = createCudnnConv(problemNumber, gpus_[0]);
 
         switch(method_) {
             case CudnnConvMethod::FORWARD:
@@ -56,18 +58,18 @@ public:
     }
 
 private:
-    CudnnConv createCudnnConv(int problemNumber) {
+    CudnnConv createCudnnConv(int problemNumber, int deviceNumber) {
 
         std::tie(w_, h_, c_, n_, k_, r_, s_, pad_w_, pad_h_, wstride_, hstride_) = problems_.get(problemNumber);
-        return CudnnConv(w_, h_, c_, n_, k_, r_, s_, pad_w_, pad_h_, wstride_, hstride_);
+        return CudnnConv(w_, h_, c_, n_, k_, r_, s_, pad_w_, pad_h_, wstride_, hstride_, deviceNumber);
     }
 
     int forward(CudnnConv &conv) {
         auto filter = TensorCreate::rand(std::vector<int>{r_, s_, c_, k_}, curand_gen_);
         auto input = TensorCreate::rand(std::vector<int>{w_, h_, c_, n_}, curand_gen_);
         auto output = TensorCreate::zeros(conv.get_output_dims());
-    
-	// TODO
+   
+    	// TODO
         // std::string fwd_algo_s = cnn.get_fwd_algo_string();
     
         //Warm up

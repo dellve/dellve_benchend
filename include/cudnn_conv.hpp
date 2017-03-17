@@ -37,9 +37,9 @@ private:
 
 public:
     CudnnConv(int w, int h, int c, int n, int k, int r, int s,
-              int pad_w, int pad_h, int wstride, int hstride) :
+              int pad_w, int pad_h, int wstride, int hstride, int device) :
     
-              cudnn_handle_(),
+              cudnn_handle_(device),
               x_desc_(CUDNN_TENSOR_NCHW, n, c, h, w),
               w_desc_(CUDNN_TENSOR_NCHW, k, c, r, s),
               conv_desc_(pad_h, pad_w, hstride, wstride) {
@@ -164,7 +164,6 @@ public:
                                                          dW.begin()));
     }
 
-
     void backwardData(Tensor<float> filter, Tensor<float> delta, Tensor<float> dX) {
         // Convolution Backward Data
         CHECK_CUDNN_ERROR(cudnnConvolutionBackwardData(cudnn_handle_.handle(),
@@ -181,8 +180,6 @@ public:
                                                        x_desc_.desc(),
                                                        dX.begin()));
     }
-
-
 
     std::vector<int> get_output_dims() { 
         return output_dims_; 
