@@ -27,16 +27,18 @@ RM_RF=rm -rf
 UTIL=version
 CONV=forward_conv backward_data_conv backward_filter_conv
 POOL=forward_pool backward_pool
+SOFTMAX=forward_softmax backward_softmax
 ##############################
 
 UTIL_BENCH=$(addprefix $(BIN_DIR)/, $(UTIL:=.bench))
 CONV_BENCH=$(addprefix $(BIN_DIR)/, $(CONV:=.bench))
 POOL_BENCH=$(addprefix $(BIN_DIR)/, $(POOL:=.bench))
+SOFTMAX_BENCH=$(addprefix $(BIN_DIR)/, $(SOFTMAX:=.bench))
 HEADERS=$(wildcard $(INC_DIR)/*.hpp)
 
 #TODO: Add dependencies
 
-all: bin $(UTIL_BENCH) $(CONV_BENCH) $(POOL_BENCH)
+all: bin $(UTIL_BENCH) $(CONV_BENCH) $(POOL_BENCH) $(SOFTMAX_BENCH)
 
 bin:
 	$(MKDIR) $(BIN_DIR)

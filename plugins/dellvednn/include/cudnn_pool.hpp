@@ -25,6 +25,7 @@ private:
     const float alpha_ = 1.f;
     const float beta_ = 0.f;
 public:
+    // TODO: Extend pool_decriptor for any pooling algorithms, currently hardcoded in cudnn_helper to MAX 
     CudnnPool(int w, int h, int c, int n, int win_w, int win_h,
               int pad_w, int pad_h, int wstride, int hstride, int device) : 
 
