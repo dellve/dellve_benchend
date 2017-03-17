@@ -28,17 +28,22 @@ UTIL=version
 CONV=forward_conv backward_data_conv backward_filter_conv
 POOL=forward_pool backward_pool
 SOFTMAX=forward_softmax backward_softmax
+ACTIVATION=forward_activation backward_activation
 ##############################
 
 UTIL_BENCH=$(addprefix $(BIN_DIR)/, $(UTIL:=.bench))
 CONV_BENCH=$(addprefix $(BIN_DIR)/, $(CONV:=.bench))
 POOL_BENCH=$(addprefix $(BIN_DIR)/, $(POOL:=.bench))
 SOFTMAX_BENCH=$(addprefix $(BIN_DIR)/, $(SOFTMAX:=.bench))
+ACTIVATION_BENCH=$(addprefix $(BIN_DIR)/, $(ACTIVATION:=.bench))
 HEADERS=$(wildcard $(INC_DIR)/*.hpp)
 
 #TODO: Add dependencies
 
-all: bin $(UTIL_BENCH) $(CONV_BENCH) $(POOL_BENCH) $(SOFTMAX_BENCH)
+#all: bin $(UTIL_BENCH) $(CONV_BENCH) $(POOL_BENCH) $(SOFTMAX_BENCH) $(ACTIVATION_BENCH)
+
+# TEMP ALL for fast make
+all: bin $(ACTIVATION_BENCH)
 
 bin:
 	$(MKDIR) $(BIN_DIR)

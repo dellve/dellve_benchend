@@ -140,7 +140,6 @@ public:
     }
 
     cudnnConvolutionDescriptor_t desc() const { return *desc_; };
-
 };
 
 class PoolingDescriptor {
@@ -153,7 +152,6 @@ class PoolingDescriptor {
         }
     };
 public:
-
     PoolingDescriptor(int win_h, int win_w, int pad_h, int pad_w, int hstride, int wstride) :
         desc_(new cudnnPoolingDescriptor_t, PoolingDescriptorDeleter()) {
         // TODO: Extend Pooling to support more algorithms (currently hardcoded to MAX    
@@ -170,7 +168,29 @@ public:
     }
 
     cudnnPoolingDescriptor_t desc() const { return *desc_; };
+};
 
+class ActivationDescriptor {
+    std::shared_ptr<cudnnActivationDescriptor_t> desc_;
+
+    struct ActivationDescriptorDeleter {
+        void operator()(cudnnActivationDescriptor_t * desc) {
+            cudnnDestroyActivationDescriptor(*desc);
+            delete desc;
+        }
+    };
+public:
+    ActivationDescriptor(void) :
+        desc_(new cudnnActivationDescriptor_t, ActivationDescriptorDeleter()) {
+        // TODO: Extend Activastion to support more modes and nan option
+        CHECK_CUDNN_ERROR(cudnnCreateActivationDescriptor(desc_.get()));
+        CHECK_CUDNN_ERROR(cudnnSetActivationDescriptor(*desc_,
+                                                       CUDNN_ACTIVATION_TANH,
+                                                       CUDNN_NOT_PROPAGATE_NAN,
+                                                       0.0));
+    }
+
+    cudnnActivationDescriptor_t desc() const { return *desc_; };
 };
 
 #endif // DELLVE_CUDNN_HELPER_H_
