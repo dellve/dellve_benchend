@@ -13,6 +13,8 @@
 #include "cudnn_problem_set.hpp"
 #include "tensor.hpp"
 
+enum class CudnnSoftmaxForm { FORWARD_FAST, FORWARD_ACCURATE, FORWARD_LOG, BACKWARD_FAST, 
+                                   BACKWARD_ACCURATE, BACKWARD_LOG };
 enum class CudnnSoftmaxMethod { FORWARD, BACKWARD };
 
 class CudnnSoftmaxDriver {
@@ -21,19 +23,21 @@ private:
     curandGenerator_t curand_gen_;
     CudnnSoftmaxMethod method_;
     CudnnSoftmaxProblemSet problems_;
+    CudnnSoftmaxAlgorithm algorithm_;
 
     int n_, w_, h_, c_; // Input parameters
     
     std::vector<int> gpus_;
 public:
-    CudnnSoftmaxDriver(CudnnSoftmaxMethod method, CudnnSoftmaxProblemSet problems, int numRuns, std::vector<int> gpus) :
+    CudnnSoftmaxDriver(CudnnSoftmaxForm form, CudnnSoftmaxProblemSet problems, int numRuns, 
+                       std::vector<int> gpus) :
                        num_repeats_(numRuns),
                        gpus_(gpus),
-                       method_(method),
                        problems_(problems) {
         cudaFree(0);
         curandCreateGenerator(&curand_gen_, CURAND_RNG_PSEUDO_DEFAULT);
         curandSetPseudoRandomGeneratorSeed(curand_gen_, 42ULL);
+        convertForm(form);
     }
 
     int run(int problemNumber) {
@@ -50,9 +54,41 @@ public:
     }
 
 private:
+    void convertForm(CudnnSoftmaxForm form) {
+        switch (form) {
+            case CudnnSoftmaxForm::FORWARD_FAST:
+                method_ = CudnnSoftmaxMethod::FORWARD;
+                algorithm_ = CudnnSoftmaxAlgorithm::FAST; 
+                break;
+            case CudnnSoftmaxForm::FORWARD_ACCURATE:
+                method_ = CudnnSoftmaxMethod::FORWARD;
+                algorithm_ = CudnnSoftmaxAlgorithm::ACCURATE; 
+                break;
+            case CudnnSoftmaxForm::FORWARD_LOG:
+                method_ = CudnnSoftmaxMethod::FORWARD;
+                algorithm_ = CudnnSoftmaxAlgorithm::LOG; 
+                break;
+            case CudnnSoftmaxForm::BACKWARD_FAST:
+                method_ = CudnnSoftmaxMethod::BACKWARD;
+                algorithm_ = CudnnSoftmaxAlgorithm::FAST; 
+                break;
+            case CudnnSoftmaxForm::BACKWARD_ACCURATE:
+                method_ = CudnnSoftmaxMethod::BACKWARD;
+                algorithm_ = CudnnSoftmaxAlgorithm::ACCURATE; 
+                break;
+            case CudnnSoftmaxForm::BACKWARD_LOG:
+                method_ = CudnnSoftmaxMethod::BACKWARD;
+                algorithm_ = CudnnSoftmaxAlgorithm::LOG; 
+                break;
+            default:
+                method_ = CudnnSoftmaxMethod::FORWARD;
+                algorithm_ = CudnnSoftmaxAlgorithm::ACCURATE;
+        }
+    }
+
     CudnnSoftmax createCudnnSoftmax(int problemNumber, int deviceNumber) {
         std::tie(w_, h_, c_, n_) = problems_.get(problemNumber);
-        return CudnnSoftmax(w_, h_, c_, n_, deviceNumber); 
+        return CudnnSoftmax(w_, h_, c_, n_, deviceNumber, algorithm_); 
     }
 
     int forward(CudnnSoftmax &softmax) {
