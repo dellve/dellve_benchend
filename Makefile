@@ -26,15 +26,17 @@ RM_RF=rm -rf
 ##############################
 UTIL=version
 CONV=forward_conv backward_data_conv backward_filter_conv
+POOL=forward_pool backward_pool
 ##############################
 
 UTIL_BENCH=$(addprefix $(BIN_DIR)/, $(UTIL:=.bench))
 CONV_BENCH=$(addprefix $(BIN_DIR)/, $(CONV:=.bench))
+POOL_BENCH=$(addprefix $(BIN_DIR)/, $(POOL:=.bench))
 HEADERS=$(wildcard $(INC_DIR)/*.hpp)
 
 #TODO: Add dependencies
 
-all: bin $(UTIL_BENCH) $(CONV_BENCH)
+all: bin $(UTIL_BENCH) $(CONV_BENCH) $(POOL_BENCH)
 
 bin:
 	$(MKDIR) $(BIN_DIR)

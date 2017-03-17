@@ -125,8 +125,6 @@ class ConvolutionDescriptor {
         }
     };
 public:
-
-
     ConvolutionDescriptor(int pad_h, int pad_w, int hstride, int wstride) :
         desc_(new cudnnConvolutionDescriptor_t, ConvolutionDescriptorDeleter()) {
 
@@ -142,6 +140,36 @@ public:
     }
 
     cudnnConvolutionDescriptor_t desc() const { return *desc_; };
+
+};
+
+class PoolingDescriptor {
+    std::shared_ptr<cudnnPoolingDescriptor_t> desc_;
+
+    struct PoolingDescriptorDeleter {
+        void operator()(cudnnPoolingDescriptor_t * desc) {
+            cudnnDestroyPoolingDescriptor(*desc);
+            delete desc;
+        }
+    };
+public:
+
+    PoolingDescriptor(int win_h, int win_w, int pad_h, int pad_w, int hstride, int wstride) :
+        desc_(new cudnnPoolingDescriptor_t, PoolingDescriptorDeleter()) {
+        
+        CHECK_CUDNN_ERROR(cudnnCreatePoolingDescriptor(desc_.get()));
+        CHECK_CUDNN_ERROR(cudnnSetPooling2dDescriptor(*desc_,
+                                                      CUDNN_POOLING_MAX,
+                                                      CUDNN_NOT_PROPAGATE_NAN,
+                                                      win_h,
+                                                      win_w,
+                                                      pad_h,
+                                                      pad_w,
+                                                      hstride,
+                                                      wstride));
+    }
+
+    cudnnPoolingDescriptor_t desc() const { return *desc_; };
 
 };
 
