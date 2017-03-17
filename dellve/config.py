@@ -1,5 +1,7 @@
-
+import os
+import os.path
 __config = {}
+__cache = {}
 
 def load(file):
     """
@@ -27,6 +29,9 @@ def load_yaml(file):
     if data:
         __config.update(data)
 
+    # Cache directory of configuration file
+    __cache['config-file-dir'] = os.path.dirname(os.path.realpath(file.name))
+
 def load_json(file):
     """
     @brief      Loads a JSON-encoded configuration file.
@@ -40,6 +45,9 @@ def load_json(file):
     if data:
         __config.update(data)
 
+    # Cache directory of configuration file
+    __cache['config-file-dir'] = os.path.realpath(file.name)
+
 def get(name):
     """
     @brief      Gets value of a configuration parameter.
@@ -50,14 +58,11 @@ def get(name):
     """
     return __config[name]
 
-def set(name, value):
-    """
-    @brief      Sets values of a configuration parameter.
-
-    @param      name    Parameter's name
-    @param      value  Parameter's new value
-    """
-    __config[name] = value
-
+def get_path(name):
+    path = get(name)
+    if os.path.isabs(path):
+        return path
+    else:
+        return os.path.join(__cache['config-file-dir'], path)
 
 

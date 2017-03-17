@@ -1,3 +1,4 @@
+
 from setuptools import setup, find_packages
 
 setup(
@@ -7,21 +8,28 @@ setup(
     include_package_data=True,
     package_data={
         'dellve': [
-            'dellve.config.yaml'
+            'data/jinja2/*',
+            'data/config.yaml'
         ]
     },
     install_requires=[
         'click',
         'daemonocle',
+        'falcon',
+        'gevent',
+        'jinja2',
         'pick',
         'pyyaml',
-        'zmq'
+        'stringcase'
+    ],
+    setup_requires=[
+        'pytest-runner'
+    ],
+    tests_require=[
+        'pytest'
     ],
     entry_points='''
         [console_scripts]
         dellve=dellve.dellve:cli
-    ''',
-    setup_requires=['pytest-runner'],
-    tests_require=['pytest']
+    '''
 )
-

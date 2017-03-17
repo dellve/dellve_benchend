@@ -1,4 +1,21 @@
-# dellve_benchend
+DELLve Benchmark Service
+========================
+
+Getting Started
+---------------
+
+Install CLI tools:
+
+```bash
+# optional: virtualenv venv && source venv/bin/activate
+pip install .
+```
+
+Check out CLI help:
+
+```bash
+dellve --help
+```
 
 
 [![Build Status](https://travis-ci.org/dellve/dellve_benchend.svg?branch=dev)](https://travis-ci.org/dellve/dellve_benchend)

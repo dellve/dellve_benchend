@@ -1,22 +1,23 @@
+import config
 import daemonocle as daemon
-import zmq
+import os
 import worker
 
 class DELLveService(object):
 
-    def __init__(self):
+    def __init__(self, debug=False):
 
-        dameon_worker_config = {
+        dameon_worker = worker.DELLveWorker(config.get('http-port'))
 
-        }
-
-        dameon_worker = worker.DELLveWorker(**dameon_worker_config)
+        if not os.path.exists(dameon_worker.workdir):
+            os.makedirs(dameon_worker.workdir)
 
         dameon_config = {
             'worker':               dameon_worker.start,
             'shutdown_callback':    dameon_worker.stop,
             'pidfile':              dameon_worker.pidfile,
             'workdir':              dameon_worker.workdir,
+            'detach':               debug == False,
         }
 
         self._daemon = daemon.Daemon(**dameon_config)

@@ -1,0 +1,13 @@
+{# Jinja2 Template for DELLve-plugins' setup.py #}
+from setuptools import setup, find_packages
+
+setup (
+	name='{{ package_name }}',
+	version='0.0.1',
+	packages=find_packages(),
+	install_requires=['dellve'],
+	entry_points='''
+	[dellve.benchmarks]
+	{{ benchmark_name }}={{ package_name }}:{{ benchmark_name }}
+	'''
+)
