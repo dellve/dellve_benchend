@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
     CudnnSoftmaxDriver driver(CudnnSoftmaxForm::BACKWARD_FAST, problems, options.getNumRuns(),
                             options.getGpus());
 
-    printf("Starting Backward Softmax through %s set with %d runs\n", options.getProblemSetFile().c_str(), 
+    printf("Starting Backward Softmax Fast through %s set with %d runs\n", options.getProblemSetFile().c_str(), 
             options.getNumRuns());
     for (auto i = 0; i < problems.getSize(); i++) {
         int time = driver.run(i);
