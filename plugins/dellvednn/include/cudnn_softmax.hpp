@@ -10,6 +10,13 @@
 
 enum class CudnnSoftmaxAlgorithm { FAST, ACCURATE, LOG };
 
+/**
+ * Wraps around cuDNN calls for all of the softmax methods.
+ *
+ * Initializes the descriptors required the run the softmax methods when the instance is created.
+ * Then, sets the algorithm based on user input. Provides user with the backwards and forwards
+ * methods that uses the algorithm specified by the user to run softmax on the GPU.
+ */
 class CudnnSoftmax {
 private:
     CudnnHandle cudnn_handle_;
@@ -24,7 +31,13 @@ private:
 
     const float alpha_ = 1.f;
     const float beta_ = 0.f;
-public:
+public: 
+    /**
+     * Initializes the x and y descriptors of the softmax operation based on the problem set.
+     * Currently, both the dimensions of the x and y are the same. Also initializes the algorithm
+     * to run (Fast, Accurate, or Log) based on the user input. This is used later in the forward
+     * and backward methods.
+     */
     CudnnSoftmax (int w, int h, int c, int n, int device, CudnnSoftmaxAlgorithm alg) : 
                   cudnn_handle_(device),
                   x_desc_(CUDNN_TENSOR_NCHW, n, c, h, w),
@@ -43,7 +56,15 @@ public:
                 algorithm_ = CUDNN_SOFTMAX_ACCURATE;
         }
     }
-   
+    
+    /**
+     * Run the softmax forward method given the data pointers to the GPU memory associated with 
+     * x_desc, and y_desc.
+     *
+     **** Inputs
+     * x - Tensor class associated with the tensor descriptor x_desc (input).
+     * y - Tensor class associated with the tensor descriptor y_desc (output). 
+     */ 
     // TODO: Change SOFTMAX Algorithm and Mode dynamically
     void forward(Tensor<float> x, Tensor<float> y) {
         // Softmax Forward
@@ -57,6 +78,16 @@ public:
                                               y_desc_.desc(),
                                               y.begin()));
     }
+
+    /**
+     * Run the softmax backward method given the data pointers to the GPU memory associated with
+     * the input tensor, the input differential tensor, and the output tensor.
+     *
+     **** Inputs
+     * y - Tensor class associated with the tensor descriptor y_desc (output).
+     * dY - Tensor class associated with the input differential tensor.
+     * dX - Tensor class associated with the output tensor. 
+     */
     // TODO: Change SOFTMAX Algorithm and Mode dynamically
     void backward(Tensor<float> y, Tensor<float> dY, Tensor<float> dX) {
         // Softmax Backward
