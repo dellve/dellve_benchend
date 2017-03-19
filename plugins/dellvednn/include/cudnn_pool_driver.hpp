@@ -17,6 +17,23 @@ enum class CudnnPoolForm { FORWARD_MAX, FORWARD_AVGPAD, FORWARD_AVGNOPAD, BACKWA
                            BACKWARD_AVGNOPAD };
 enum class CudnnPoolMethod { FORWARD, BACKWARD };
 
+/**
+ * Driver class to interface to the CudnnPool class. 
+ *
+ * Allows user to pass in the correlated problem set to the pooling, number of
+ * runs to average, the gpu to run on, and the pooling method.
+ *
+ * Currently supports 2 methods as seen above:
+ * Forward Pooling
+ * Backward Pooling
+ *
+ * + 3 Algorithms for each:
+ * Max
+ * Average with Padding
+ * Average without Padding
+ *
+ * All of these methods use the same problem sets but would have different impact and results.
+ */
 class CudnnPoolDriver {
 private:
     int num_repeats_;
@@ -31,7 +48,13 @@ private:
     int wstride_, hstride_; // Stride
     
     std::vector<int> gpus_;
-public:
+public:    
+    /**
+     * Set up all the instances of the variables needed for this class and setup the curand generator
+     * which will be later used to generate random data to run the pooling through.
+     * 
+     * Also, converts the form to the correlated method and algorithm to run pooling.
+     */
     CudnnPoolDriver(CudnnPoolForm form, CudnnPoolProblemSet problems, int numRuns, std::vector<int> gpus) :
                     num_repeats_(numRuns),
                     gpus_(gpus),
@@ -42,6 +65,10 @@ public:
         convertForm(form);
     }
 
+    /**
+     * Run pooling with the method and number of runs specified in initialization using the problemSet
+     * defined in the initalization with the index provided in this function as input. 
+     */
     int run(int problemNumber) {
         CudnnPool pool = createCudnnPool(problemNumber, gpus_[0]);
 
@@ -56,6 +83,9 @@ public:
     }
 
 private: 
+    /**
+     * Convert CudnnPoolForm to CudnnPoolMethod and CudnnPoolAlgorithm. 
+     */
     void convertForm(CudnnPoolForm form) {
         switch(form) {
             case CudnnPoolForm::FORWARD_MAX:
@@ -88,11 +118,17 @@ private:
         }
     }
 
+    /**
+     * Setup an instance of CudnnPool by unraveling the problemset.
+     */ 
     CudnnPool createCudnnPool(int problemNumber, int deviceNumber) {
         std::tie(w_, h_, c_, n_, win_w_, win_h_, pad_w_, pad_h_, wstride_, hstride_) = problems_.get(problemNumber);
         return CudnnPool(w_, h_, c_, n_, win_w_, win_h_, pad_w_, pad_h_, wstride_, hstride_, deviceNumber, algorithm_);
     }
 
+    /**
+     * Run Pooling Forward a given number of times and algorithm specified, and average the time that it takes to run.
+     */
     int forward(CudnnPool &pool) {
         auto input = TensorCreate::rand(std::vector<int>{w_, h_, c_, n_}, curand_gen_);
         auto output = TensorCreate::zeros(pool.get_output_dims());
@@ -114,16 +150,14 @@ private:
         return fwd_time;
     }
 
+    /**
+     * Run Pooling Backward a given number of times and algorithm specified, and average the time that it takes to run.
+     */
     int backward(CudnnPool &pool) {
         auto input = TensorCreate::rand(std::vector<int>{w_, h_, c_, n_}, curand_gen_); 
         auto dY = TensorCreate::rand(std::vector<int>{w_, h_, c_, n_}, curand_gen_); 
         auto output = TensorCreate::zeros(pool.get_output_dims());
         auto dX = TensorCreate::zeros(std::vector<int>{w_, h_, c_, n_});
-        
-        /* Start Forward
-        pool.forward(input, output);
-        cudaDeviceSynchronize();
-        */
         
         // Warmup
         pool.backward(input, dY, output, dX);

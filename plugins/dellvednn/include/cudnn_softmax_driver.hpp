@@ -17,6 +17,23 @@ enum class CudnnSoftmaxForm { FORWARD_FAST, FORWARD_ACCURATE, FORWARD_LOG, BACKW
                                    BACKWARD_ACCURATE, BACKWARD_LOG };
 enum class CudnnSoftmaxMethod { FORWARD, BACKWARD };
 
+/**
+ * Driver class to interface to the CudnnSoftmax class. 
+ *
+ * Allows user to pass in the correlated problem set to the softmax methods, number of
+ * runs to average, the gpu to run on, and the softmax method.
+ *
+ * Currently supports 2 methods as seen above:
+ * Forward Softmax
+ * Backward Softmax
+ *
+ * + 3 Algorithms for each:
+ * Fast
+ * Accurate
+ * Log
+ *
+ * All of these methods use the same problem sets but would have different impact and results.
+ */
 class CudnnSoftmaxDriver {
 private:
     int num_repeats_;
@@ -29,6 +46,12 @@ private:
     
     std::vector<int> gpus_;
 public:
+    /**
+     * Set up all the instances of the variables needed for this class and setup the curand generator
+     * which will be later used to generate random data to run the softmax methods through.
+     * 
+     * Also, converts the form to the correlated method and algorithm to run softmax.
+     */
     CudnnSoftmaxDriver(CudnnSoftmaxForm form, CudnnSoftmaxProblemSet problems, int numRuns, 
                        std::vector<int> gpus) :
                        num_repeats_(numRuns),
@@ -40,6 +63,10 @@ public:
         convertForm(form);
     }
 
+    /**
+     * Run softmax with the method and number of runs specified in initialization using the problemSet
+     * defined in the initalization with the index provided in this function as input. 
+     */
     int run(int problemNumber) {
         CudnnSoftmax softmax = createCudnnSoftmax(problemNumber, gpus_[0]);
 
@@ -54,6 +81,10 @@ public:
     }
 
 private:
+
+    /**
+     * Convert CudnnSoftmaxForm to CudnnSoftmaxMethod and CudnnSoftmaxAlgorithm. 
+     */
     void convertForm(CudnnSoftmaxForm form) {
         switch (form) {
             case CudnnSoftmaxForm::FORWARD_FAST:
@@ -86,11 +117,17 @@ private:
         }
     }
 
+    /**
+     * Setup an instance of CudnnSoftmax by unraveling the problemset.
+     */ 
     CudnnSoftmax createCudnnSoftmax(int problemNumber, int deviceNumber) {
         std::tie(w_, h_, c_, n_) = problems_.get(problemNumber);
         return CudnnSoftmax(w_, h_, c_, n_, deviceNumber, algorithm_); 
     }
 
+    /**
+     * Run Softmax Forward a given number of times and algorithm specified, and average the time that it takes to run.
+     */
     int forward(CudnnSoftmax &softmax) {
         auto input = TensorCreate::rand(std::vector<int>{w_, h_, c_, n_}, curand_gen_);
         auto output = TensorCreate::zeros(std::vector<int>{w_,h_,c_,n_});
@@ -112,6 +149,9 @@ private:
         return fwd_time;
     }
 
+    /**
+     * Run Softmax Backward a given number of times and algorithm specified, and average the time that it takes to run.
+     */
     int backward(CudnnSoftmax &softmax) {
         auto input = TensorCreate::rand(std::vector<int>{w_, h_, c_, n_}, curand_gen_);
         auto dY = TensorCreate::rand(std::vector<int>{w_, h_, c_, n_}, curand_gen_);
