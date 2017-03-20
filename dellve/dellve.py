@@ -30,9 +30,7 @@ def ls():
 
 @cli.command('start', short_help='Start the benchmark service.')
 @click.option('--debug', default=False, is_flag=True, help='Debug mode.')
-@click.option('--username', prompt=True)
-@click.option('--password', prompt=True, hide_input=True)
-def start(debug, username, password):
+def start(debug):
     """
     Starts DELLve benchmark background service.
     """

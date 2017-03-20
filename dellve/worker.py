@@ -5,37 +5,69 @@ import gevent.event
 import gevent.pywsgi
 import re
 import falcon
+import json
+import helper
 
 
 class DELLveWorker(object):
+
+    class BenchmarkListRoute:
+
+        url = '/benchmarks/'
+
+        def __init__(self, worker):
+            self._worker = worker
+
+        def on_get(self, req, res):
+            res.status = falcon.HTTP_200
+            res.content_type = 'application/json'
+            data = []
+            bechmarks = self._worker._benchmarks
+            for _id, benchmark in enumerate(bechmarks):
+                data.append({
+                    'id': _id,
+                    'name': benchmark.name
+                })
+            res.body = json.dumps(data)
+
     class BenchmarkStartRoute:
 
-        url = '/benchmark/{bid}/start'
+        url = '/benchmarks/{bid}/start'
+
+        def __init__(self, worker):
+            self._worker = worker
 
         def on_get(self, req, res, bid):
             res.status = falcon.HTTP_200
             res.content_type = 'application/json'
-            res.body = '{"message": "Yo, let\'s start this benchmark # %d"}' % int(bid)
-            # TODO: actually start this benchmark
+            benchmark = self._worker._benchmarks[int(bid)]
+            benchmark.start()
+            res.body = json.dumps({})
 
     class BenchmarkStopRoute:
 
-        url = '/benchmark/{bid}/stop'
+        url = '/benchmarks/{bid}/stop'
+
+        def __init__(self, worker):
+            self._worker = worker
 
         def on_get(self, req, res, bid):
             res.status = falcon.HTTP_200
             res.content_type = 'application/json'
-            res.body = '{"message": "Yo, let\'s stop this benchmark # %d"}' % int(bid)
-            # TODO: actually start this benchmark
-
+            benchmark = self._worker._benchmarks[int(bid)]
+            benchmark.stop()
+            res.body = json.dumps({})
 
     def __init__(self, port):
         # Create Falcon API
         api = falcon.API()
 
+        # Load benchmarks
+        self._benchmarks = map(lambda b: b(), helper.load_benchmarks())
+
         # Add REST API routes
         for route in self._get_routes():
-            api.add_route(route.url, route())
+            api.add_route(route.url, route(self))
 
         # Create WSWGI server using gevent
         self._server = gevent.pywsgi.WSGIServer(('', port), api)
