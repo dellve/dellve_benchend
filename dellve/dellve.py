@@ -89,10 +89,12 @@ def run(run_all):
         selected = {name for name, index in picked}
 
         # Filter out benchmarks that weren't selected
-        benchmarks = filter(lambda k,v: k in selected, benchmarks.iteritems())
+        selected_benchmarks = {}
+        for name in selected: # TODO: simplify this for loop?
+            selected_benchmarks[name] = benchmarks[name]
+        benchmarks = selected_benchmarks
 
-    for benchmark_name,  in selected:
-        benchmarks[benchmark_name]().run()
+    map(lambda b: b().start(), benchmarks.values())
 
 
 @cli.command('new', short_help='Create a new benchmark.')
