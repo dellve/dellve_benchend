@@ -1,19 +1,19 @@
 import config
 import executor
+import falcon
 import gevent
 import gevent.event
 import gevent.pywsgi
-import re
-import falcon
-import json
 import helper
+import json
+import re
 
 
 class DELLveWorker(object):
 
     class BenchmarkListRoute:
 
-        url = '/benchmarks/'
+        url = '/benchmark/'
 
         def __init__(self, worker):
             self._worker = worker
@@ -32,7 +32,7 @@ class DELLveWorker(object):
 
     class BenchmarkStartRoute:
 
-        url = '/benchmarks/{bid}/start'
+        url = '/benchmark/{bid}/start'
 
         def __init__(self, worker):
             self._worker = worker
@@ -40,13 +40,12 @@ class DELLveWorker(object):
         def on_get(self, req, res, bid):
             res.status = falcon.HTTP_200
             res.content_type = 'application/json'
-            benchmark = self._worker._benchmarks[int(bid)]
-            benchmark.start()
-            res.body = json.dumps({})
+            self._worker._executor.start_benchmark(int(bid))
+            res.body = json.dumps({}) # do we need this ?
 
     class BenchmarkStopRoute:
 
-        url = '/benchmarks/{bid}/stop'
+        url = '/benchmark/{bid}/stop'
 
         def __init__(self, worker):
             self._worker = worker
@@ -54,16 +53,33 @@ class DELLveWorker(object):
         def on_get(self, req, res, bid):
             res.status = falcon.HTTP_200
             res.content_type = 'application/json'
-            benchmark = self._worker._benchmarks[int(bid)]
-            benchmark.stop()
-            res.body = json.dumps({})
+            self._worker._executor.stop_benchmark(int(bid))
+            res.body = json.dumps({}) # do we need this ?
+
+    class BenchmarkProgressRoute:
+
+        url = '/benchmark/progress'
+
+        def __init__(self, worker):
+            self._worker = worker
+
+        def on_get(self, req, res):
+            res.status = falcon.HTTP_200
+            res.content_type = 'application/json'
+            res.body = json.dumps({
+                'id': self._worker._executor.benchmark_id,
+                'progress': self._worker._executor.progress
+            })
 
     def __init__(self, port):
         # Create Falcon API
         api = falcon.API()
 
         # Load benchmarks
-        self._benchmarks = map(lambda b: b(), helper.load_benchmarks())
+        self._benchmarks = helper.load_benchmarks()
+
+        # Create benchmark executor
+        self._executor = None
 
         # Add REST API routes
         for route in self._get_routes():
@@ -78,14 +94,27 @@ class DELLveWorker(object):
     def start(self):
         print 'Starting dellve worker ... OK'
 
+        # Create executor
+        self._executor = executor.Executor(self._benchmarks)
+
+        # Start executor
+        self._executor.start()
+
         # Start server
         self._server.start()
 
         # Wait forever...
         self._stop.wait()
 
+        # Stop benchmark
+        self._executor.stop_benchmark()
+
+        # Join executor process
+        self._executor.join()
+
         # Stop server
         self._server.stop()
+
 
     def stop(self, *args):
         print 'Stopping dellve worker ... '
