@@ -5,7 +5,7 @@ import os
 import pick
 import service
 import template
-
+import multiprocessing
 
 data_path = os.path.join(os.path.dirname(__file__), 'data')
 
@@ -93,7 +93,7 @@ def run(run_all):
             selected_benchmarks[name] = benchmarks[name]
         benchmarks = selected_benchmarks
 
-    map(lambda b: b().start(), benchmarks.values())
+    map(lambda b: b().run(), benchmarks.values())
 
 
 @cli.command('new', short_help='Create a new benchmark.')
