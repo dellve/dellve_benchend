@@ -1,7 +1,6 @@
 import config
 import daemonocle as daemon
 import os
-import zmq
 import worker
 
 class DELLveService(object):

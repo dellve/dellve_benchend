@@ -26,15 +26,24 @@ RM_RF=rm -rf
 ##############################
 UTIL=version
 CONV=forward_conv backward_data_conv backward_filter_conv
+POOL=forward_pool_max forward_pool_avgpad forward_pool_avgnopad backward_pool_max backward_pool_avgpad backward_pool_avgnopad
+SOFTMAX=forward_softmax_fast forward_softmax_accurate forward_softmax_log backward_softmax_fast backward_softmax_accurate backward_softmax_log
+ACTIVATION=forward_activation backward_activation
 ##############################
 
 UTIL_BENCH=$(addprefix $(BIN_DIR)/, $(UTIL:=.bench))
 CONV_BENCH=$(addprefix $(BIN_DIR)/, $(CONV:=.bench))
+POOL_BENCH=$(addprefix $(BIN_DIR)/, $(POOL:=.bench))
+SOFTMAX_BENCH=$(addprefix $(BIN_DIR)/, $(SOFTMAX:=.bench))
+ACTIVATION_BENCH=$(addprefix $(BIN_DIR)/, $(ACTIVATION:=.bench))
 HEADERS=$(wildcard $(INC_DIR)/*.hpp)
 
 #TODO: Add dependencies
 
-all: bin $(UTIL_BENCH) $(CONV_BENCH)
+all: bin $(UTIL_BENCH) $(CONV_BENCH) $(POOL_BENCH) $(SOFTMAX_BENCH) $(ACTIVATION_BENCH)
+
+# TEMP ALL for fast make
+# all: bin $(POOL_BENCH)
 
 bin:
 	$(MKDIR) $(BIN_DIR)
