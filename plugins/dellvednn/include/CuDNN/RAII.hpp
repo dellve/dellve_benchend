@@ -1,6 +1,7 @@
 #ifndef PYCUDNN_RAII_HPP
 #define PYCUDNN_RAII_HPP
 
+#include <functional>
 #include <memory> // std::shared_ptr
 
 #include "Status.hpp" // checkStatus
@@ -24,17 +25,17 @@ namespace CuDNN {
 
   		std::shared_ptr<Resource> mResource;
 
-  public:
+  	public:
 
-  	RAII() : mResource(new Resource) {}
+	  	RAII() : mResource(new Resource) {}
 
-		T get() const {
-			return mResource->object;
-		}
+			T get() const {
+				return mResource->object;
+			}
 
-    operator T() const {
-      return mResource->object;
-    }
+	    operator T() const {
+	      return mResource->object;
+	    }
 	};
 }
 

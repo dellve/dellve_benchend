@@ -14,7 +14,7 @@ namespace CuDNN {
    * @brief      Class for data type.
    */
   template<>
-      class dataType<float> {
+      struct dataType<float> {
           static const cudnnDataType_t type = CUDNN_DATA_FLOAT;
       };
 
@@ -22,7 +22,7 @@ namespace CuDNN {
    * @brief      Class for data type.
    */
   template <>
-      class dataType<double> {
+      struct dataType<double> {
           static const cudnnDataType_t type = CUDNN_DATA_DOUBLE;
       };
 }
