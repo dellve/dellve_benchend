@@ -16,38 +16,35 @@ namespace DELLve {
 	 */
 	typedef std::function<CuDNN::Status(void)> Benchmark;
 
-	template <typename ... A>
 	class BenchmarkDriver {
+		
 		int deviceId_;
 		int numRuns_;
-		Benchmark (*benchmarkFactory_) (A...);
 
 	public:
 
-		BenchmarkDriver ( int deviceId, int numRuns, Benchmark (*benchmarkFactory)(A...) ) :
+		BenchmarkDriver ( int deviceId, int numRuns ) :
 			deviceId_(deviceId),
-			numRuns_(numRuns),
-			benchmarkFactory_(benchmarkFactory) {}
+			numRuns_(numRuns) {}
 
-		void run(A... args) {
+		template <typename ... A>
+	 	void run(Benchmark (*factory)(A...), A... args) const {
 			cudaSetDevice(deviceId_);
-			auto op = benchmarkFactory_(args...);
+			auto benchmark = factory(args...);
 			cudaDeviceSynchronize();
 			for (int i = 0; i < numRuns_; i++)
-				CuDNN::checkStatus(op());
+				CuDNN::checkStatus(benchmark());
 			cudaDeviceSynchronize();
 		}
 	};
 
-	template <typename ... A> 
-	void registerBenchmark (pybind11::module& m, const char* className, 
+	template <typename T, typename ... A> 
+	void registerBenchmark (T driver, const char* benchmarkName, 
 		Benchmark (*benchmarkFactory)(A...) ) 
 	{
-		pybind11::class_<BenchmarkDriver<A...>>(m, className)
-			.def("__init__", [=](BenchmarkDriver<A...>& instance, int deviceId, int numRuns) {
-				new (&instance) BenchmarkDriver<A...> (deviceId, numRuns, benchmarkFactory);
-	    	})
-	    	.def("run", &BenchmarkDriver<A...>::run);
+		driver.def(benchmarkName, [=](const BenchmarkDriver& self, A ... args) {
+			self.run(benchmarkFactory, args...);
+		});
 	}
 }
 
