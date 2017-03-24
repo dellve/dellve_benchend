@@ -6,6 +6,7 @@ import gevent.event
 import gevent.pywsgi
 import helper
 import json
+import random
 import re
 
 
@@ -21,14 +22,10 @@ class DELLveWorker(object):
         def on_get(self, req, res):
             res.status = falcon.HTTP_200
             res.content_type = 'application/json'
-            data = []
-            bechmarks = self._worker._benchmarks
-            for _id, benchmark in enumerate(bechmarks):
-                data.append({
-                    'id': _id,
-                    'name': benchmark.name
-                })
-            res.body = json.dumps(data)
+            res.body = json.dumps([{
+                'id': 0,
+                'name': "Benchmark0"
+            }])
 
     class BenchmarkStartRoute:
 
@@ -40,8 +37,7 @@ class DELLveWorker(object):
         def on_get(self, req, res, bid):
             res.status = falcon.HTTP_200
             res.content_type = 'application/json'
-            self._worker._executor.start_benchmark(int(bid))
-            res.body = json.dumps({}) # do we need this ?
+            res.body = json.dumps({})
 
     class BenchmarkStopRoute:
 
@@ -53,8 +49,7 @@ class DELLveWorker(object):
         def on_get(self, req, res, bid):
             res.status = falcon.HTTP_200
             res.content_type = 'application/json'
-            self._worker._executor.stop_benchmark(int(bid))
-            res.body = json.dumps({}) # do we need this ?
+            res.body = json.dumps({})
 
     class BenchmarkProgressRoute:
 
@@ -67,8 +62,8 @@ class DELLveWorker(object):
             res.status = falcon.HTTP_200
             res.content_type = 'application/json'
             res.body = json.dumps({
-                'id': self._worker._executor.benchmark_id,
-                'progress': self._worker._executor.progress
+                'id': 0,
+                'progress': random.randint(0, 100)
             })
 
     def __init__(self, port):
