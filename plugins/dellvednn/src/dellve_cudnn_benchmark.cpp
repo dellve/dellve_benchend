@@ -3,7 +3,10 @@
 #include "CuDNN/ActivationDescriptor.hpp"
 #include "CuDNN/Handle.hpp"
 #include "CuDNN/Status.hpp"
-#include "CuDNN/Tensor.hpp"		   
+#include "CuDNN/Tensor.hpp"
+#include "CuDNN/SoftmaxMode.hpp"
+#include "CuDNN/SoftmaxAlgorithm.hpp"
+#include "dellve_cudnn_softmax.hpp"
  
 #include <iostream>
 
@@ -118,6 +121,8 @@ PYBIND11_PLUGIN(dellve_cudnn_benchmark) {
 
 	DELLve::registerBenchmark(driver, "activation_forward", &activationForward<float>);
 	DELLve::registerBenchmark(driver, "activation_backward", &activationBackward<float>);
-
+    DELLve::registerBenchmark(driver, "softmax_forward", &(CuDNN::Softmax::forward<float>)); 
+    DELLve::registerBenchmark(driver, "softmax_backward", &(CuDNN::Softmax::backward<float>)); 
+    
 	return m.ptr();
 }
