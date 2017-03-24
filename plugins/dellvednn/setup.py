@@ -29,7 +29,7 @@ class get_pybind_include(object):
 
 ext_modules = [
         Extension('dellve_cudnn_benchmark',
-          ['src/benchmark.cpp'],
+          ['src/dellve_cudnn_benchmark.cpp'],
             include_dirs=[
                 './include',
                 cuda_include,
