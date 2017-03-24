@@ -9,6 +9,7 @@
 #include <iostream>
 
 #include "dellve_cudnn_benchmark.hpp"
+#include "dellve_constants.hpp"
 #include "CuDNN/Handle.hpp"
 #include "CuDNN/Status.hpp"
 #include "CuDNN/Tensor.hpp"
@@ -43,8 +44,6 @@ namespace CuDNN {
         template <typename T>
         DELLve::Benchmark forward(int n, int c, int h, int w, std::string alg) {
             CuDNN::SoftmaxAlgorithm algorithm = convAlgorithm(alg);
-            static const float alpha = 1.f;
-            static const float beta = 0.f;
             std::cout << "Creating Handle" << std::endl;
             CuDNN::Handle handle;
 
@@ -59,10 +58,10 @@ namespace CuDNN {
                 return cudnnSoftmaxForward(handle,
                                     algorithm,
                                     CUDNN_SOFTMAX_MODE_CHANNEL,
-                                    &alpha,
+                                    &(CuDNN::Constants::alpha),
                                     x.getDescriptor(),
                                     x,
-                                    &beta,
+                                    &(CuDNN::Constants::beta),
                                     y.getDescriptor(),
                                     y);
             };
@@ -99,12 +98,12 @@ namespace CuDNN {
                 return cudnnSoftmaxBackward(handle,
                                             algorithm,
                                             CUDNN_SOFTMAX_MODE_CHANNEL,
-                                            &alpha,
+                                            &(CuDNN::Constants::alpha),
                                             y.getDescriptor(),
                                             y,
                                             dY.getDescriptor(),
                                             dY,
-                                            &beta,
+                                            &(CuDNN::Constants::beta),
                                             dX.getDescriptor(),
                                             dX);
             };
