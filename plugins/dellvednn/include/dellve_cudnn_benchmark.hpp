@@ -10,6 +10,8 @@
 
 #include "CuDNN/Status.hpp"
 
+#include <iostream>
+
 namespace DELLve {
 	/**
 	 * { item_description }
@@ -29,12 +31,16 @@ namespace DELLve {
 
 		template <typename ... A>
 	 	void run(Benchmark (*factory)(A...), A... args) const {
-			cudaSetDevice(deviceId_);
-			auto benchmark = factory(args...);
-			cudaDeviceSynchronize();
-			for (int i = 0; i < numRuns_; i++)
-				CuDNN::checkStatus(benchmark());
-			cudaDeviceSynchronize();
+	 		try {
+				cudaSetDevice(deviceId_);
+				auto benchmark = factory(args...);
+				cudaDeviceSynchronize();
+				for (int i = 0; i < numRuns_; i++)
+					CuDNN::checkStatus(benchmark());				
+				cudaDeviceSynchronize();
+			} catch (const CuDNN::Exception& e) {
+				std::cout << e.what() << std::endl;
+			}
 		}
 	};
 

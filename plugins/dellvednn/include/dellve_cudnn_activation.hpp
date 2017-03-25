@@ -18,10 +18,7 @@
 namespace CuDNN {
     namespace Activation {
         CuDNN::ActivationDescriptor createDescriptor(void) {
-            std::cout << "Creating activation descriptor..." << std::endl;
             CuDNN::ActivationDescriptor descriptor;
-
-            std::cout << "Setting activation descriptor..." << std::endl;
             CuDNN::checkStatus (
                 cudnnSetActivationDescriptor ( 
                     descriptor,
@@ -36,18 +33,10 @@ namespace CuDNN {
 
         template <typename T>
         DELLve::Benchmark forward ( int n, int c, int h, int w ) {
-            std::cout << "Creating handle..." << std::endl;
 	        CuDNN::Handle handle;
-
-            CuDNN::ActivationDescriptor descriptor = createDescriptor();
-
-            std::cout << "Creating tensor x" << std::endl;
-            auto x = CuDNN::Tensor<T>::NCHW::create(n, c, h, w);
-
-            std::cout << "Creating tensor y" << std::endl;
-            auto y = CuDNN::Tensor<T>::NCHW::create(n, c, h, w);
-
-            std::cout << "Creating benchmark..." << std::endl;
+            auto descriptor = createDescriptor();
+            auto x = CuDNN::Tensor<T>::createNCHW(n, c, h, w);
+            auto y = CuDNN::Tensor<T>::createNCHW(n, c, h, w);
 
             return [=]() {
                 return cudnnActivationForward (
@@ -66,24 +55,13 @@ namespace CuDNN {
 
         template <typename T>
         DELLve::Benchmark backward ( int n, int c, int h, int w ) {
-            std::cout << "Creating handle..." << std::endl;
             CuDNN::Handle handle;
+            auto descriptor = createDescriptor();
+            auto x = CuDNN::Tensor<T>::createNCHW(n, c, h, w);
+            auto y = CuDNN::Tensor<T>::createNCHW(n, c, h, w);
+            auto dx = CuDNN::Tensor<T>::createNCHW(n, c, h, w);
+            auto dy = CuDNN::Tensor<T>::createNCHW(n, c, h, w);
 
-            CuDNN::ActivationDescriptor descriptor = createDescriptor();
-
-            std::cout << "Creating tensor x" << std::endl;
-            auto x = CuDNN::Tensor<T>::NCHW::create(n, c, h, w);
-
-            std::cout << "Creating tensor y" << std::endl;
-            auto y = CuDNN::Tensor<T>::NCHW::create(n, c, h, w);
-
-            std::cout << "Creating tensor dx" << std::endl;
-            auto dx = CuDNN::Tensor<T>::NCHW::create(n, c, h, w);
-
-            std::cout << "Creating tensor dy" << std::endl;
-            auto dy = CuDNN::Tensor<T>::NCHW::create(n, c, h, w);
-
-            std::cout << "Creating benchmark..." << std::endl;
             return [=]() {
                 return cudnnActivationBackward (
                     handle,

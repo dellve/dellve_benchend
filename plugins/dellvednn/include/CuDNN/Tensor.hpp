@@ -6,41 +6,29 @@
 #include <memory>
 #include <tuple>
 
-#include "CuDNN/DataType.hpp"
-#include "CuDNN/TensorDescriptor.hpp"
+#include "Buffer.hpp"
+#include "DataType.hpp"
+#include "TensorDescriptor.hpp"
 
 namespace CuDNN {
 
 	template <typename T>
 	class Tensor {
 		
-		struct CudaBuffer {
-			T* mData;
-			size_t mSize;
-
-			CudaBuffer (size_t size) : mSize(size) {
-				cudaMalloc(&mData, size * sizeof(T));
-			}
-
-			~CudaBuffer () {
-				cudaFree(mData);
-			}
-
-		};
-
-		std::shared_ptr<CudaBuffer> mBuffer;
+		Buffer<T> mBuffer;
 		CuDNN::TensorDescriptor mDescriptor;
 		std::vector<int> mDims;
 		
 		Tensor (int n, int c, int h, int w, 
 			TensorDescriptor descriptor ) :
-			mBuffer(new CudaBuffer(n * c * h * w)),
+			mBuffer(n * c * h * w),
 			mDescriptor(descriptor),
 			mDims({n, c, h, w}) {}
 
 		Tensor ( const std::vector<int> dims,
 			TensorDescriptor descriptor ) :
-			mBuffer(new CudaBuffer(accumulate(dims))),
+			mBuffer(accumulate(dims)),
+			mDescriptor(descriptor),
 			mDims(dims) {}
 
 	private:
@@ -61,49 +49,67 @@ namespace CuDNN {
 	public:
 
 		operator T*() const {
-			return mBuffer->mData;
+			return mBuffer;
 		}
 
 		const TensorDescriptor& getDescriptor() const {
 			return mDescriptor;
 		}
 
-		struct NCHW {
 
-		 	static Tensor<T>
-		 	create ( int n, int c, int h, int w, T fillValue = 0 ) {
-		 		return Tensor(n, c, h, w, makeDescriptor ( 
-	 				&cudnnSetTensor4dDescriptor, 
-	 				CUDNN_TENSOR_NCHW, 
-	 				CuDNN::dataType<T>::type, 
-	 				n, c, h, w )
-		 		);
-	    	}
-	    
-	    	// static auto createRand ( int n, int c, int h, int w ) {
-	    	
-	    	// }
+	 	static Tensor<T>
+	 	createNCHW ( int n, int c, int h, int w, T fillValue = 0 ) {
+	 		return Tensor(n, c, h, w, makeDescriptor ( 
+ 				&cudnnSetTensor4dDescriptor, 
+ 				CUDNN_TENSOR_NCHW, 
+ 				CuDNN::dataType<T>::type, 
+ 				n, c, h, w )
+	 		);
+    	}
 
-	    };
-
-		struct NHWC {
+    	static Tensor<T>
+	 	createNCHW ( std::tuple<int, int, int, int> NCHW, T fillValue = 0 ) {
+	 		int n, c, h, w; 
+	 		std::tie(n, c, h, w) = NCHW;
+	 		return Tensor(n, c, h, w, makeDescriptor ( 
+ 				&cudnnSetTensor4dDescriptor, 
+ 				CUDNN_TENSOR_NCHW, 
+ 				CuDNN::dataType<T>::type, 
+ 				n, c, h, w )
+	 		);
+    	}
+    
+    	// static auto createRandNCHW ( int n, int c, int h, int w ) {
+    	
+    	// }
 			
-		 	static std::tuple<CuDNN::Tensor<T>, CuDNN::TensorDescriptor> 
-		 	create ( int n, int h, int w, int c, T fillValue = 0 ) {
-				return Tensor(n, h, w, c, makeDescriptor ( 
-	 				&cudnnSetTensor4dDescriptor, 
-	 				CUDNN_TENSOR_NHWC, 
-	 				CuDNN::dataType<T>::type, 
-	 				n, h, w, c )
-		 		);
-	    	}
-	    
-	    	// static auto createRand ( int n, int c, int h, int w ) {
+	 	static Tensor<T> 
+	 	createNHWC ( int n, int h, int w, int c, T fillValue = 0 ) {
+			return Tensor(n, h, w, c, makeDescriptor ( 
+ 				&cudnnSetTensor4dDescriptor, 
+ 				CUDNN_TENSOR_NHWC, 
+ 				CuDNN::dataType<T>::type, 
+ 				n, h, w, c )
+	 		);
+    	}
 
-	    	// }
-		};
+    	static Tensor<T> 
+	 	createNHWC ( std::tuple<int, int, int, int> NHWC, T fillValue = 0 ) {
+			int n, h, w, c; 
+	 		std::tie(n, h, w, c) = NHWC;
+			return Tensor(n, h, w, c, makeDescriptor ( 
+ 				&cudnnSetTensor4dDescriptor, 
+ 				CUDNN_TENSOR_NHWC, 
+ 				CuDNN::dataType<T>::type, 
+ 				n, h, w, c )
+	 		);
+    	}
+    
+    	// static auto createRandNHWC ( int n, int c, int h, int w ) {
 
-	    static std::tuple<CuDNN::Tensor<T>, CuDNN::TensorDescriptor>
+    	// }
+
+	    static Tensor<T>
 	    create (
 	    	const std::vector<int>& dims, 
 	    	const std::vector<int>& strides, 

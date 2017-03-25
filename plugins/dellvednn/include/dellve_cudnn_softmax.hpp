@@ -43,27 +43,21 @@ namespace CuDNN {
          */ 
         template <typename T>
         DELLve::Benchmark forward(int n, int c, int h, int w, std::string alg) {
-            CuDNN::SoftmaxAlgorithm algorithm = convAlgorithm(alg);
-            std::cout << "Creating Handle" << std::endl;
             CuDNN::Handle handle;
+            auto algorithm = convAlgorithm(alg);
+            auto x = CuDNN::Tensor<T>::createNCHW(n, c, h, w);
+            auto y = CuDNN::Tensor<T>::createNCHW(n, c, h, w);
 
-            std::cout << "Creating tensor x" << std::endl;
-            auto x = CuDNN::Tensor<T>::NCHW::create(n, c, h, w);
-
-            std::cout << "Creating tensor y" << std::endl;
-            auto y = CuDNN::Tensor<T>::NCHW::create(n, c, h, w);
-
-            std::cout << "Creating benchmark..." << std::endl;
             return [=]() {
                 return cudnnSoftmaxForward(handle,
-                                    algorithm,
-                                    CUDNN_SOFTMAX_MODE_CHANNEL,
-                                    &(CuDNN::Constants::alpha),
-                                    x.getDescriptor(),
-                                    x,
-                                    &(CuDNN::Constants::beta),
-                                    y.getDescriptor(),
-                                    y);
+                                   	  	   algorithm,
+                                   	  	   CUDNN_SOFTMAX_MODE_CHANNEL,
+                                   	  	   &CuDNN::Constants::alpha,
+                                   	  	   x.getDescriptor(),
+                                   	  	   x,
+                                   	  	   &CuDNN::Constants::beta,
+                                   	  	   y.getDescriptor(),
+                                   	  	   y);
             };
         }
 
@@ -78,32 +72,22 @@ namespace CuDNN {
          */
         template <typename T>
         DELLve::Benchmark backward(int n, int c, int h, int w, std::string alg) {
-            CuDNN::SoftmaxAlgorithm algorithm = convAlgorithm(alg);
-            static const float alpha = 1.f;
-            static const float beta = 0.f;
-            std::cout << "Creating Handle" << std::endl;
             CuDNN::Handle handle;
+            auto algorithm = convAlgorithm(alg);
+            auto dX = CuDNN::Tensor<T>::createNCHW(n, c, h, w);
+            auto y = CuDNN::Tensor<T>::createNCHW(n, c, h, w);
+            auto dY = CuDNN::Tensor<T>::createNCHW(n, c, h, w);
 
-            std::cout << "Creating tensor dX" << std::endl;
-            auto dX = CuDNN::Tensor<T>::NCHW::create(n, c, h, w);
-
-            std::cout << "Creating tensor y" << std::endl;
-            auto y = CuDNN::Tensor<T>::NCHW::create(n, c, h, w);
-
-            std::cout << "Creating tensor dY" << std::endl;
-            auto dY = CuDNN::Tensor<T>::NCHW::create(n, c, h, w);
-
-            std::cout << "Creating benchmark..." << std::endl;
             return [=]() {
                 return cudnnSoftmaxBackward(handle,
                                             algorithm,
                                             CUDNN_SOFTMAX_MODE_CHANNEL,
-                                            &(CuDNN::Constants::alpha),
+                                            &CuDNN::Constants::alpha,
                                             y.getDescriptor(),
                                             y,
                                             dY.getDescriptor(),
                                             dY,
-                                            &(CuDNN::Constants::beta),
+                                            &CuDNN::Constants::beta,
                                             dX.getDescriptor(),
                                             dX);
             };
