@@ -42,10 +42,10 @@ namespace CuDNN {
                 return cudnnActivationForward (
                     handle,
                     descriptor,
-                    &(CuDNN::Constants::alpha),
+                    &CuDNN::Constants::alpha,
                     x.getDescriptor(),
                     x,
-                    &(CuDNN::Constants::beta),
+                    &CuDNN::Constants::beta,
                     y.getDescriptor(),
                     y 
                 );
@@ -66,14 +66,14 @@ namespace CuDNN {
                 return cudnnActivationBackward (
                     handle,
                     descriptor,
-                    &(CuDNN::Constants::alpha),
+                    &CuDNN::Constants::alpha,
                     y.getDescriptor(),
                     y,
                     dy.getDescriptor(),
                     dy,
                     x.getDescriptor(),
                     x,
-                    &(CuDNN::Constants::beta),
+                    &CuDNN::Constants::beta,
                     dx.getDescriptor(),
                     dx
                 );

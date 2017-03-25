@@ -6,6 +6,8 @@
 #include "Buffer.hpp"
 #include "ConvolutionDescriptor.hpp"
 #include "ConvolutionFwdAlgo.hpp"
+#include "ConvolutionBwdDataAlgo.hpp"
+#include "ConvolutionBwdFilterAlgo.hpp"
 #include "FilterDescriptor.hpp"
 #include "Status.hpp"
 #include "TensorDescriptor.hpp"
@@ -46,7 +48,7 @@ namespace CuDNN {
 			FilterDescriptor<T> filterDescriptor,
 			ConvolutionDescriptor convolutionDescritor, 
 			TensorDescriptor diffOutputDescriptor,
-			ConvolutionFwdAlgo algorithm ) 
+			ConvolutionBwdDataAlgo algorithm ) 
 		{
     		size_t workspaceSize;
         	CuDNN::checkStatus (
@@ -71,7 +73,7 @@ namespace CuDNN {
 			FilterDescriptor<T> filterDescriptor,
 			ConvolutionDescriptor convolutionDescritor, 
 			TensorDescriptor diffOutputDescriptor,
-			ConvolutionFwdAlgo algorithm ) 
+			ConvolutionBwdFilterAlgo algorithm ) 
 		{
 			size_t workspaceSize;
         	CuDNN::checkStatus (

@@ -21,6 +21,8 @@ PYBIND11_PLUGIN(dellve_cudnn_benchmark) {
 	DELLve::registerBenchmark(driver, "softmax_forward", &CuDNN::Softmax::forward<float>); 
 	DELLve::registerBenchmark(driver, "softmax_backward", &CuDNN::Softmax::backward<float>); 
 	DELLve::registerBenchmark(driver, "convolution_forward", &CuDNN::Convolution::forward<float>);
+	DELLve::registerBenchmark(driver, "convolution_backward_data", &CuDNN::Convolution::backwardData<float>);
+	DELLve::registerBenchmark(driver, "convolution_backward_filter", &CuDNN::Convolution::backwardFilter<float>);
 	
 	return m.ptr();
 }
