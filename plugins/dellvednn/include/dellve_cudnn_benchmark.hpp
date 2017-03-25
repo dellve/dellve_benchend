@@ -39,7 +39,7 @@ namespace DELLve {
 					CuDNN::checkStatus(benchmark());				
 				cudaDeviceSynchronize();
 			} catch (const CuDNN::Exception& e) {
-				std::cout << e.what() << std::endl;
+				std::cout << cudnnGetErrorString(e.getStatus()) << std::endl;
 			}
 		}
 	};
