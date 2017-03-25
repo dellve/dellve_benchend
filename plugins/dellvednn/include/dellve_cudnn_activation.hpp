@@ -32,7 +32,7 @@ namespace CuDNN {
         }
 
         template <typename T>
-        DELLve::Benchmark forward ( int n, int c, int h, int w ) {
+        DELLve::Benchmark forward ( int w, int h, int c, int n ) {
 	        CuDNN::Handle handle;
             auto descriptor = createDescriptor();
             auto x = CuDNN::Tensor<T>::createNCHW(n, c, h, w);
@@ -54,7 +54,7 @@ namespace CuDNN {
         }
 
         template <typename T>
-        DELLve::Benchmark backward ( int n, int c, int h, int w ) {
+        DELLve::Benchmark backward ( int w, int h, int c, int n ) {
             CuDNN::Handle handle;
             auto descriptor = createDescriptor();
             auto x = CuDNN::Tensor<T>::createNCHW(n, c, h, w);

@@ -190,6 +190,7 @@ class PoolingDescriptor {
 
     struct PoolingDescriptorDeleter {
         void operator()(cudnnPoolingDescriptor_t * desc) {
+            std::cout << "Destrying PLS NO" << std::endl;
             cudnnDestroyPoolingDescriptor(*desc);
             delete desc;
         }

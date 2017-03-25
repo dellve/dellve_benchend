@@ -3,6 +3,7 @@
 #include "dellve_cudnn_activation.hpp"
 #include "dellve_cudnn_convolution.hpp"
 #include "dellve_cudnn_softmax.hpp"
+#include "dellve_cudnn_pooling.hpp"
 
 #include <iostream>
 
@@ -21,7 +22,8 @@ PYBIND11_PLUGIN(dellve_cudnn_benchmark) {
 	DELLve::registerBenchmark(driver, "softmax_forward", &CuDNN::Softmax::forward<float>); 
 	DELLve::registerBenchmark(driver, "softmax_backward", &CuDNN::Softmax::backward<float>); 
 	DELLve::registerBenchmark(driver, "convolution_forward", &CuDNN::Convolution::forward<float>);
+	DELLve::registerBenchmark(driver, "pooling_forward", &CuDNN::Pooling::forward<float>);
+	DELLve::registerBenchmark(driver, "pooling_backward", &CuDNN::Pooling::forward<float>);
 	
 	return m.ptr();
 }
-

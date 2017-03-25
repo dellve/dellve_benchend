@@ -42,7 +42,7 @@ namespace CuDNN {
          * y - Tensor class associated with the tensor descriptor y_desc (output). 
          */ 
         template <typename T>
-        DELLve::Benchmark forward(int n, int c, int h, int w, std::string alg) {
+        DELLve::Benchmark forward(int w, int h, int c, int n, std::string alg) {
             CuDNN::Handle handle;
             auto algorithm = convAlgorithm(alg);
             auto x = CuDNN::Tensor<T>::createNCHW(n, c, h, w);
@@ -71,7 +71,7 @@ namespace CuDNN {
          * dX - Tensor class associated with the output tensor. 
          */
         template <typename T>
-        DELLve::Benchmark backward(int n, int c, int h, int w, std::string alg) {
+        DELLve::Benchmark backward(int w, int h, int c, int n, std::string alg) {
             CuDNN::Handle handle;
             auto algorithm = convAlgorithm(alg);
             auto dX = CuDNN::Tensor<T>::createNCHW(n, c, h, w);
