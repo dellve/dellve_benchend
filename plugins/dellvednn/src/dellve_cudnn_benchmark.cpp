@@ -12,20 +12,20 @@ namespace py = pybind11;
 PYBIND11_PLUGIN(dellve_cudnn_benchmark) {
 	py::module m("dellve_cudnn_benchmark");
 
-	auto driver = py::class_<DELLve::BenchmarkDriver>(m, "Benchmark")
-		.def("__init__", [=](DELLve::BenchmarkDriver& instance, int deviceId, int numRuns) {
-			new (&instance) DELLve::BenchmarkDriver (deviceId, numRuns);
-		});
+	py::class_<DELLve::BenchmarkController>(m, "BenchmarkController")
+        .def("start", &DELLve::BenchmarkController::start)
+        .def("stop", &DELLve::BenchmarkController::stop)
+        .def("get_progress", &DELLve::BenchmarkController::getProgress);
 
-	DELLve::registerBenchmark(driver, "activation_forward", &CuDNN::Activation::forward<float>);
-	DELLve::registerBenchmark(driver, "activation_backward", &CuDNN::Activation::backward<float>);
-	DELLve::registerBenchmark(driver, "softmax_forward", &CuDNN::Softmax::forward<float>); 
-	DELLve::registerBenchmark(driver, "softmax_backward", &CuDNN::Softmax::backward<float>); 
-	DELLve::registerBenchmark(driver, "convolution_forward", &CuDNN::Convolution::forward<float>);
-	DELLve::registerBenchmark(driver, "convolution_backward_data", &CuDNN::Convolution::backwardData<float>);
-	DELLve::registerBenchmark(driver, "convolution_backward_filter", &CuDNN::Convolution::backwardFilter<float>);
-	DELLve::registerBenchmark(driver, "pooling_forward", &CuDNN::Pooling::forward<float>);
-	DELLve::registerBenchmark(driver, "pooling_backward", &CuDNN::Pooling::forward<float>);
+	DELLve::registerBenchmark(m, "activation_forward", &CuDNN::Activation::forward<float>);
+	DELLve::registerBenchmark(m, "activation_backward", &CuDNN::Activation::backward<float>);
+	DELLve::registerBenchmark(m, "softmax_forward", &CuDNN::Softmax::forward<float>);
+	DELLve::registerBenchmark(m, "softmax_backward", &CuDNN::Softmax::backward<float>);
+	DELLve::registerBenchmark(m, "convolution_forward", &CuDNN::Convolution::forward<float>);
+	DELLve::registerBenchmark(m, "convolution_backward_data", &CuDNN::Convolution::backwardData<float>);
+	DELLve::registerBenchmark(m, "convolution_backward_filter", &CuDNN::Convolution::backwardFilter<float>);
+	DELLve::registerBenchmark(m, "pooling_forward", &CuDNN::Pooling::forward<float>);
+	DELLve::registerBenchmark(m, "pooling_backward", &CuDNN::Pooling::forward<float>);
 	
 	return m.ptr();
 }
