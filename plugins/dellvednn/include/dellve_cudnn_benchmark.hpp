@@ -15,6 +15,8 @@
 #include <thread>
 #include <tuple>
 
+#include <chrono>
+
 namespace DELLve {
     namespace Functional {
         template<int ...>
@@ -45,24 +47,35 @@ namespace DELLve {
     typedef std::function<CuDNN::Status(void)> Benchmark;
 
     class BenchmarkController {
-        
+       
+        int numRuns_;
+
         volatile bool stop_;
-        volatile float progress_;
+        volatile int currRun_;
+        volatile int currTimeMicro_;
         
     public:
         
         void start ( int deviceId, int numRuns ) {
+            numRuns_ = numRuns;
             stop_ = false;
-            progress_ = 0.0;
+            currRun_ = -1;
+            currTimeMicro_ = 0;
+
             std::thread([=](){
                 cudaSetDevice(deviceId);
                 cudaDeviceSynchronize();
                 Benchmark benchmark = getBenchmark();
-                for (int i = 0; i < numRuns && !stop_; i++) {
+
+                for (currRun_ = 0; currRun_ < numRuns && !stop_; currRun_++) {
+                    auto start = std::chrono::steady_clock::now();
+
                     CuDNN::checkStatus(benchmark());
-                    progress_ = ((float) i) / numRuns;
+                    cudaDeviceSynchronize();
+
+                    auto end = std::chrono::steady_clock::now();
+                    currTimeMicro_ += static_cast<int>(std::chrono::duration<double, std::micro>(end-start).count());
                 }
-                cudaDeviceSynchronize();
             }).detach();
         }
 
@@ -70,8 +83,20 @@ namespace DELLve {
             stop_ = true;
         }
 
+        int getCurrRun() const {
+            return currRun_;
+        }
+
         float getProgress() const {
-            return progress_;
+            return (float) (currRun_)/numRuns_;
+        }
+
+        int getCurrTimeMicro() const {
+            return currTimeMicro_;
+        }
+
+        int getAvgTimeMicro() const {
+            return currTimeMicro_/currRun_;
         }
         
     private:
