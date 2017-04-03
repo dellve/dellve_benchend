@@ -4,13 +4,26 @@ import os
 import worker
 
 class DELLveService(object):
+    """Back-end DELLve deamon service"""
 
-    def __init__(self, debug=False):
+    def __init__(self, daemon_worker=worker.DELLveWorker(), debug=False):
+        """Constructs a new DELLveService object.
 
-        dameon_worker = worker.DELLveWorker(config.get('http-port'))
+        Args:
+            debug (bool, optional): Flag indicating if service should be run in 'debug' mode
+        """
 
+        # Create worker instance
+        if not isinstance(daemon_worker, worker.WorkerAPI):
+            raise TypeError() # TODO: come up with meaningful error message
+        dameon_worker = daemon_worker
+
+        # Create working directory if one doesn't exit
         if not os.path.exists(dameon_worker.workdir):
             os.makedirs(dameon_worker.workdir)
+
+        # Note:     Background deamon is created using daemonocle;
+        #           Please refer https://pypi.python.org/pypi/daemonocle
 
         dameon_config = {
             'worker':               dameon_worker.start,
@@ -20,14 +33,20 @@ class DELLveService(object):
             'detach':               debug == False,
         }
 
+        # Create background daemon
         self._daemon = daemon.Daemon(**dameon_config)
 
     def start(self):
-        # daemonocle.Daemon.do_action
+        """Starts background daemon.
+        """
         self._daemon.do_action('start')
 
     def stop(self):
+        """Starts background daemon.
+        """
         self._daemon.do_action('stop')
 
     def status(self):
+        """Prints background daemon's status.
+        """
         self._daemon.do_action('status')

@@ -30,6 +30,6 @@ setup(
     ],
     entry_points='''
         [console_scripts]
-        dellve=dellve.dellve:cli
+        dellve=dellve.cli:cli
     '''
 )

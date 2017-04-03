@@ -1,6 +1,13 @@
 import os
 import os.path
-__config = {}
+import pkg_resources
+
+__config = {
+    'http-port': 9999,
+    'benchmarks': map(lambda item: item.load(),
+        pkg_resources.iter_entry_points(group='dellve.benchmarks', name=None)),
+}
+
 __cache = {}
 
 def load(file):
@@ -49,8 +56,7 @@ def load_json(file):
     __cache['config-file-dir'] = os.path.realpath(file.name)
 
 def get(name):
-    """
-    @brief      Gets value of a configuration parameter.
+    """Gets value of a configuration parameter.
 
     @param      name   Parameter's name
 
@@ -58,11 +64,13 @@ def get(name):
     """
     return __config[name]
 
-def get_path(name):
-    path = get(name)
-    if os.path.isabs(path):
-        return path
-    else:
-        return os.path.join(__cache['config-file-dir'], path)
+def set(name, value):
+    """Sets value of a configuration parameter.
 
+    .. note:: This function is mainly used for testing pursposes.
+    """
+    __config[name] = value
 
+# Load benchmarks
+benchmarks = map(lambda item: item.load(),
+    pkg_resources.iter_entry_points(group='dellve.benchmarks', name=None))

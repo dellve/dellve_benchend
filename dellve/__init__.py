@@ -1,4 +1,3 @@
-__all__ = ['Benchmark']
+__all__ = ['Benchmark', 'BenchmarkInterrupt']
 
-from benchmark import Benchmark
-
+from benchmark import Benchmark, BenchmarkInterrupt
