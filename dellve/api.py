@@ -2,7 +2,6 @@
 """
 import config
 import falcon
-import helper
 import json
 import gevent
 import gevent.lock

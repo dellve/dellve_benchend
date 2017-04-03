@@ -3,6 +3,7 @@ import daemonocle as daemon
 import os
 import worker
 
+
 class DELLveService(object):
     """Back-end DELLve deamon service"""
 
