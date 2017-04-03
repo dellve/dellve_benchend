@@ -17,6 +17,10 @@ Check out CLI help:
 dellve --help
 ```
 
+Documentation
+-------------
+
+http://dellve.readthedocs.io
 
 [![Build Status](https://travis-ci.org/dellve/dellve_benchend.svg?branch=dev)](https://travis-ci.org/dellve/dellve_benchend)
 
