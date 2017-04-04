@@ -88,8 +88,8 @@ def run(run_all):
         # Filter out benchmarks that weren't selected
         benchmarks = [b for b in benchmarks if b.name in selected]
 
-    for benchmark_name, benchmark_class in benchmarks.items():
-        with tqdm.tqdm(desc=benchmark_name, total=100) as progress_bar:
+    for benchmark_class in benchmarks:
+        with tqdm.tqdm(desc=benchmark_class.name, total=100) as progress_bar:
             benchmark = benchmark_class()
             benchmark.start()
             old_progress = 0

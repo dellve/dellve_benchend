@@ -20,7 +20,8 @@ setup(
         'jinja2',
         'pick',
         'pyyaml',
-        'stringcase'
+        'stringcase',
+        'tqdm'
     ],
     setup_requires=[
         'pytest-runner'
