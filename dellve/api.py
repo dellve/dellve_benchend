@@ -6,7 +6,6 @@ import json
 import gevent
 import gevent.lock
 
-
 class HttpRoute(object):
     """DELLve REST API route base-class.
 

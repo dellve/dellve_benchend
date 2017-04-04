@@ -1,17 +1,13 @@
 import api
 import benchmark
 import click
+import daemon
 import config
 import os
 import pick
-import service
 import template
 import time
 import tqdm
-
-import daemonocle
-
-
 
 @click.group()
 @click.option('--config-file', 'config_file',
@@ -21,7 +17,8 @@ def cli(config_file):
 
     Type 'dellve COMMAND --help' to see help for commands listed below.
     """
-    config.load(config_file) # load DELLve configuration
+    if config_file:
+        config.load(config_file) # load DELLve configuration
 
 @cli.command('ls', short_help='List installed benchmarks.')
 def ls():
@@ -31,32 +28,37 @@ def ls():
         print ' ', benchmark.name
 
 @cli.command('start', short_help='Start the benchmark service.')
-@click.option('--debug', default=False, is_flag=True, help='Debug mode.')
+@click.option('--debug', 'debug', default=False,
+    help='Turn on debug mode.', is_flag=True)
 def start(debug):
     """Starts DELLve benchmark background service.
     """
     click.echo('Starting benchmark service...')
-    service.DELLveService(debug).start() # start DELLve daemon service
+    daemon.Daemon(debug=debug).do_action('start')
+
+@cli.command('status', short_help='Get the status of benchmark service.')
+def status():
+    """Gets the status DELLve benchmark background service.
+    """
+    click.echo('Getting benchmark status...')
+    daemon.Daemon().do_action('status')
 
 @cli.command('stop', short_help='Stop the benchmark service.')
 def stop():
     """Stops DELLve benchmark background service.
     """
     click.echo('Stopping benchmark service...')
-    service.DELLveService().stop()
-
-@cli.command('status', short_help='Get the status of benchmark service.')
-def status():
-    """Gets the status DELLve benchmark background service.
-    """
-    service.DELLveService().status()
+    daemon.Daemon().do_action('stop')
 
 @cli.command('run', short_help='Run the benchmarks.')
 @click.option('--all', '-A', 'run_all', default=False, is_flag=True,
     help='Run all benchmarks.')
-def run(run_all, benchmarks=config.get('benchmarks')):
+def run(run_all):
     """Runs the user specified benchmarks
     """
+
+    # Load benchmarks
+    benchmarks=config.get('benchmarks')
 
     if len(benchmarks) < 1: # ensure there're some benchmarks to be run
         click.echo('Please, install at least one benchmark plugin.', err=True)

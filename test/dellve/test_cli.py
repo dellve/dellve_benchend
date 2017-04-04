@@ -9,42 +9,6 @@ import time
 import uuid
 import yaml
 
-# def test_hello_world():
-    # @click.command()
-    # @click.argument('name')
-    # def hello(name):
-    #     click.echo('Hello %s!' % name)
-
-    # runner = CliRunner()
-    # result = runner.invoke(hello, ['Peter'])
-    # assert result.exit_code == 0
-    # assert result.output == 'Hello Peter!\n'
-
-# @click.group()
-# @click.option('--config-file', 'config_file',
-#     help='Configuration file name.', type=click.File('r'))
-# def cli(config_file):
-#     """DELLve benchmark command line interface.
-
-#     Type 'dellve COMMAND --help' to see help for commands listed below.
-#     """
-#     config.load(config_file) # load DELLve configuration
-
-# def test_cat():
-#     @click.command()
-#     @click.argument('f', type=click.File())
-#     def cat(f):
-#         click.echo(f.read())
-
-#     runner = CliRunner()
-#     with runner.isolated_filesystem():
-#         with open('hello.txt', 'w') as f:
-#             f.write('Hello World!')
-
-#         result = runner.invoke(cat, ['hello.txt'])
-#         assert result.exit_code == 0
-#         assert result.output == 'Hello World!\n'
-
 @pytest.fixture(scope="module",
                 params=[0, 1, 2, 10])
 def benchmarks(request):
@@ -73,17 +37,26 @@ def runner():
 def yaml_file(request):
     yield tempfile.mkstemp(suffix=request.param)
 
-# def test_cli_yaml(runner, yaml_file):
-#     with runner.isolated_filesystem():
-#         file_handle, file_name = yaml_file
-#         config_key   = uuid.uuid1()
-#         config_value = uuid.uuid1()
-#         with open(file_name, 'w') as file:
-#             yaml.dump({str(config_key): str(config_value)}, file)
-#         print file_name
-#         result = runner.invoke(dellve.cli.cli, ['--config-file=%s' % file_name])
-#         # assert result.exit_code == 0
-#         assert dellve.config.get(str(config_key)) == str(config_value)
+def test_start_status_stop(runner, benchmarks):
+    """Tests CLI 'start' and 'stop' command"""
+
+    # Load fixture benchmarks
+    dellve.config.set('benchmarks', benchmarks)
+
+    # Invoke CLI 'start' command
+    result = runner.invoke(dellve.cli.start)
+    assert result.output == 'Starting benchmark service...\n'
+    assert result.exit_code == -1
+
+    # Invoke CLI 'status' command
+    result = runner.invoke(dellve.cli.status)
+    assert result.output == 'Getting benchmark status...\n'
+    assert result.exit_code == -1
+
+    # Invoke CLI 'stop' command
+    result = runner.invoke(dellve.cli.stop)
+    assert result.output == 'Stopping benchmark service...\n'
+    assert result.exit_code == -1
 
 def test_ls(runner, benchmarks):
     """Tests CLI 'ls' command

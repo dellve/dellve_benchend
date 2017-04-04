@@ -42,7 +42,7 @@ class WorkerAPI(object):
         """
 
 
-class DELLveWorker(WorkerAPI):
+class Worker(WorkerAPI):
     """
     @brief      DELLve background worker.
     """
@@ -60,34 +60,32 @@ class DELLveWorker(WorkerAPI):
         # Create WSWGI server using DELLve API
         self._server = gevent.pywsgi.WSGIServer(('', port), dellve_api)
 
-        # Create event (flag) to pend on
-        self._stop = gevent.event.Event()
+        # Create event to wait for on exit
+        self._exit = gevent.event.Event()
 
     def start(self):
-        """
-        @brief      Starts DELLve worker.
-        """
+        """Starts DELLve worker"""
         print 'Starting dellve worker ... OK'
 
         # Start server
         self._server.start()
 
         # Wait forever...
-        self._stop.wait()
+        self._exit.wait()
 
         # Stop server
         self._server.stop()
 
-
     def stop(self, *args):
-        """
-        @brief      Stops DELLve worker.
+        """Stops DELLve worker.
 
-        @param      args  Variable arguments list (for internal use)
+        Args:
+            *args: Variable arguments list (for internal use only)
         """
-        print 'Stopping dellve worker ... '
-        self._stop.set() # notify worker to stop
-        print '\bOK'
+        print 'Stopping dellve worker ... OK'
+        self._exit.set()
+        gevent.sleep()
+
 
     @property
     def pidfile(self):
@@ -97,6 +95,7 @@ class DELLveWorker(WorkerAPI):
         @return     PID-file name
         """
         return '.dellve/dellve.pid'
+
 
     @property
     def workdir(self):
