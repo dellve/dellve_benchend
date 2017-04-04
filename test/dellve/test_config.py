@@ -19,7 +19,7 @@ def fail_file():
 
 def test_load_json(json_file):
     """
-    @brief      Tests dellve.config.load_json function.
+    @brief      Tests dellve.config._load_json function.
 
     @param        JSON config file fixture.
     """
@@ -27,13 +27,13 @@ def test_load_json(json_file):
     with open(file_name, 'w') as file:
         json.dump({'key': 'value'}, file)
     with open(file_name, 'r') as file:
-        dellve.config.load_json(file)
+        dellve.config._load_json(file)
         assert dellve.config.get('key') == 'value'
     os.remove(file_name)
 
 def test_load_yaml(yaml_file):
     """
-    @brief      Tests dellve.config.load_yaml function.
+    @brief      Tests dellve.config._load_yaml function.
 
     @param      json_file  YAML config file fixture.
     """
@@ -41,7 +41,7 @@ def test_load_yaml(yaml_file):
     with open(file_name, 'w') as file:
         yaml.dump({'key': 'value'}, file)
     with open(file_name, 'r') as file:
-        dellve.config.load_yaml(file)
+        dellve.config._load_yaml(file)
         assert dellve.config.get('key') == 'value'
     os.remove(file_name)
 

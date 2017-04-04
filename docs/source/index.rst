@@ -44,6 +44,8 @@ API Reference
 	:members:
 .. automodule:: dellve.benchmark
 	:members:
+.. automodule:: dellve.config
+	:members:
 
 System Architecture
 ===================
