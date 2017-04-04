@@ -1,7 +1,7 @@
 language: python
 python:
     # Note: we should enable support for more comprehensive testing
-    #       for different Python versions later; for now, faster 
+    #       for different Python versions later; for now, faster
     #       builds are more preferrable.
     # - "2.6"
     - "2.7"
@@ -15,8 +15,10 @@ python:
     # - "3.7-dev" # 3.7 development branch
     # - "nightly" # currently points to 3.7-dev
 install:
+    - virtualenv venv --no-site-packages
+    - source venv/bin/activate
     - pip install .
-    # - pip install coverage    # may need this later for code coverage 
+    # - pip install coverage    # may need this later for code coverage
     # - pip install coveralls   # may need this later for code coverage
 script:
     python setup.py test # TODO: calculate code coverage ...

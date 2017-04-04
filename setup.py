@@ -27,8 +27,7 @@ setup(
         'pytest-runner'
     ],
     tests_require=[
-        'py>=1.4.30',
-        'pytest>=3.0.3'
+        'pytest'
     ],
     entry_points='''
         [console_scripts]
