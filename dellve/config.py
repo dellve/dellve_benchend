@@ -15,7 +15,7 @@ DEFAULT_BENCHMARKS = map(lambda item: item.load(),
 DEFAULT_BENCHMARKS = list(DEFAULT_BENCHMARKS)  # convert generator to list
 DEFAULT_PID_FILE = os.path.join(DEFAULT_APP_DIR, 'dellve.pid')
 
-def create_app_dir():
+def __create_app_dir():
     # Create app directory
     app_dir = DEFAULT_APP_DIR
     if not os.path.exists(app_dir):
@@ -31,6 +31,7 @@ def create_app_dir():
     # Copy main JSON config file
     if not os.path.exists(config_file):
         shutil.copy(default_config_file, config_file)
+__create_app_dir()
 
 # Private module members (for internal use only)
 #
