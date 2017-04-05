@@ -1,21 +1,20 @@
-
 import dellve
 import dellve_cudnn_benchmark as dcb
 import time
 from dellve_stress_helper import problem_size
 
-class BackwardActivationStressTool(dellve.Benchmark): 
-    name = 'BackwardActivationStressTool'
+class ForwardSoftmaxStressTool(dellve.Benchmark): 
+    name = 'ForwardSoftmaxStressTool'
 
     def routine(self):
         # TODO: implement
         print self.memutil
-        n,c,h,w = problem_size.calculate_nchw_activation_backward(1,self.memutil)
+        n,c,h,w = problem_size.calculate_nchw_forward(1,self.memutil)
         print n
         print c
         print h
         print w
-        controller = dcb.activation_backward(w,h,c,n)
+        controller = dcb.softmax_forward(w,h,c,n,"fast")
         controller.start(1,100)
 
         p = controller.get_progress()

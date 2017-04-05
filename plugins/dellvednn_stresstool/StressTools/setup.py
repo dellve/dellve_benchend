@@ -10,6 +10,8 @@ setup (
     entry_points='''
     [dellve.benchmarks]
     ForwardActivationStressTool=StressTools:ForwardActivationStressTool
-    BackwardactivationStressTool=StressTools:BackwardActivationStressTool
+    BackwardActivationStressTool=StressTools:BackwardActivationStressTool
+    ForwardSoftmaxStressTool=StressTools:ForwardSoftmaxStressTool
+    BackwardSoftmaxStressTool=StressTools:BackwardSoftmaxStressTool
     '''
 )
