@@ -22,7 +22,7 @@ namespace CuDNN {
             CuDNN::checkStatus (
                 cudnnSetActivationDescriptor ( 
                     descriptor,
-                    CUDNN_ACTIVATION_TANH,
+                    CUDNN_ACTIVATION_RELU,
                     CUDNN_NOT_PROPAGATE_NAN,
                     0.0
                 )

@@ -9,6 +9,8 @@ class Benchmark(mp.Process):
     """
 
     __metaclass__ = abc.ABCMeta
+    memutil = 1.0
+
 
     def __init__(self):
         """Constructs a new Benchmark instance.
