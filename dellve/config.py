@@ -14,24 +14,20 @@ DEFAULT_BENCHMARKS = map(lambda item: item.load(),
     pr.iter_entry_points(group='dellve.benchmarks', name=None))
 DEFAULT_BENCHMARKS = list(DEFAULT_BENCHMARKS)  # convert generator to list
 DEFAULT_PID_FILE = os.path.join(DEFAULT_APP_DIR, 'dellve.pid')
+DEFAULT_CONFIG_FILE = os.path.join(DEFAULT_APP_DIR, 'config.json')
 
-def __create_app_dir():
-    # Create app directory
-    app_dir = DEFAULT_APP_DIR
-    if not os.path.exists(app_dir):
-        os.makedirs(app_dir)
+# Create app directory
+if not os.path.exists(DEFAULT_APP_DIR):
+    os.makedirs(DEFAULT_APP_DIR)
 
-    # Get paths to DELLve configuration files
-    config_file = os.path.join(app_dir, 'config.json')
-    default_config_file = os.path.join(app_dir, 'default.config.json')
+# Create config file (if one doesn't exist)
+if not os.path.exists(DEFAULT_CONFIG_FILE):
+    shutil.copy(os.path.join(os.path.dirname(__file__), 'data/config.json'),
+                os.path.join(DEFAULT_APP_DIR, 'config.json'))
 
-    # Copy default JSON config files
-    shutil.copy('dellve/data/config.json', default_config_file)
-
-    # Copy main JSON config file
-    if not os.path.exists(config_file):
-        shutil.copy(default_config_file, config_file)
-__create_app_dir()
+# Copy default config file (regardless if it exists)
+shutil.copy(os.path.join(os.path.dirname(__file__), 'data/config.json'),
+            os.path.join(DEFAULT_APP_DIR, 'default.config.json'))
 
 # Private module members (for internal use only)
 #
@@ -42,9 +38,10 @@ __create_app_dir()
 
 __config = {
     'app-dir':      DEFAULT_APP_DIR,
-    'http-port':    DEFAULT_HTTP_PORT,
     'benchmarks':   DEFAULT_BENCHMARKS,
-    'pid-file':     DEFAULT_PID_FILE
+    'config-file':  DEFAULT_CONFIG_FILE,
+    'http-port':    DEFAULT_HTTP_PORT,
+    'pid-file':     DEFAULT_PID_FILE,
 }
 
 

@@ -13,7 +13,7 @@ import shutil
 
 @click.group()
 @click.option('--config-file', 'config_file',
-              default=os.path.join(config.get('app-dir'), 'config.json'),
+              default=config.get('config-file'),
               help='Configuration file name.', type=click.File('r'))
 def cli(config_file):
     """DELLve benchmark command line interface.
