@@ -8,17 +8,33 @@ import pick
 import template
 import time
 import tqdm
+import sys
+import shutil
 
 @click.group()
 @click.option('--config-file', 'config_file',
-    help='Configuration file name.', type=click.File('r'))
+              default=os.path.join(config.get('app-dir'), 'config.json'),
+              help='Configuration file name.', type=click.File('r'))
 def cli(config_file):
     """DELLve benchmark command line interface.
 
     Type 'dellve COMMAND --help' to see help for commands listed below.
     """
-    if config_file:
-        config.load(config_file) # load DELLve configuration
+    config.load(config_file)  # load DELLve configuration
+
+
+@cli.command('config', short_help='Edit the configuration file.')
+def _config():
+    """Opens DELLve configuration file in default editor.
+    """
+    # Helper function that appends application directory to path
+    file_path = lambda p: os.path.join(config.get('app-dir'), p)
+    config_file = file_path('config.json')
+    if not os.path.exists(config_file):
+        shutil.copy(file_path('default.config.json'), config_file)
+    # Open file in default editor
+    click.edit(filename=config_file)
+
 
 @cli.command('ls', short_help='List installed benchmarks.')
 def ls():
@@ -27,14 +43,16 @@ def ls():
     for benchmark in config.get('benchmarks'):
         print ' ', benchmark.name
 
+
 @cli.command('start', short_help='Start the benchmark service.')
 @click.option('--debug', 'debug', default=False,
-    help='Turn on debug mode.', is_flag=True)
+              help='Turn on debug mode.', is_flag=True)
 def start(debug):
     """Starts DELLve benchmark background service.
     """
     click.echo('Starting benchmark service...')
     daemon.Daemon(debug=debug).do_action('start')
+
 
 @cli.command('status', short_help='Get the status of benchmark service.')
 def status():
@@ -43,6 +61,7 @@ def status():
     click.echo('Getting benchmark status...')
     daemon.Daemon().do_action('status')
 
+
 @cli.command('stop', short_help='Stop the benchmark service.')
 def stop():
     """Stops DELLve benchmark background service.
@@ -50,17 +69,18 @@ def stop():
     click.echo('Stopping benchmark service...')
     daemon.Daemon().do_action('stop')
 
+
 @cli.command('run', short_help='Run the benchmarks.')
 @click.option('--all', '-A', 'run_all', default=False, is_flag=True,
-    help='Run all benchmarks.')
+              help='Run all benchmarks.')
 def run(run_all):
     """Runs the user specified benchmarks
     """
 
     # Load benchmarks
-    benchmarks=config.get('benchmarks')
+    benchmarks = config.get('benchmarks')
 
-    if len(benchmarks) < 1: # ensure there're some benchmarks to be run
+    if len(benchmarks) < 1:  # ensure there're some benchmarks to be run
         click.echo('Please, install at least one benchmark plugin.', err=True)
         return
 

@@ -1,4 +1,5 @@
 import click
+import json
 import os
 import os.path
 import pkg_resources as pr
@@ -8,10 +9,10 @@ import pkg_resources as pr
 APP_NAME = 'dellve'
 DEFAULT_APP_DIR = click.get_app_dir(APP_NAME)
 DEFAULT_HTTP_PORT = 9999
-DEFAULT_BENCHMARKS = pr.iter_entry_points(group='dellve.benchmarks', name=None)
+DEFAULT_BENCHMARKS = map(lambda item: item.load(),
+    pr.iter_entry_points(group='dellve.benchmarks', name=None))
+DEFAULT_BENCHMARKS = list(DEFAULT_BENCHMARKS)  # convert generator to list
 DEFAULT_PID_FILE = os.path.join(DEFAULT_APP_DIR, 'dellve.pid')
-DEFAULT_CONFIG_FILE = os.path.join(DEFAULT_APP_DIR, 'config.yaml')
-
 
 # Private module members (for internal use only)
 #
@@ -28,35 +29,11 @@ __config = {
 }
 
 
-def _load_yaml(file):
-    """Loads a YAML-encoded configuration file.
-
-    Args:
-        file (file): Configuration file object.
-    """
-    import yaml
-    data = yaml.load(file)
-    if data:
-        __config.update(data)
-
-
-def _load_json(file):
-    """Loads a JSON-encoded configuration file.
-
-    Args:
-        file (file): Configuration file object.
-    """
-    import json
-    data = json.load(file)
-    if data:
-        __config.update(data)
-
-
 # Public module members
 
 
 def load(file):
-    """Loads a configuration file with JSON (.json) or YAML (.yaml, .yml)
+    """Loads a configuration file with JSON (.json)
     encoding.
 
     Args:
@@ -66,9 +43,9 @@ def load(file):
         IOError: IOError is raised if provided file isn't of recognized format.
     """
     if file.name.endswith('.json'):
-        _load_json(file)
-    elif file.name.endswith(('.yml', '.yaml')):
-        _load_yaml(file)
+        data = json.load(file)
+        if data and isinstance(data, dict):
+            __config.update(data)
     else:
         raise IOError('Couldn\'t load configuration file: %s' % file.name)
 

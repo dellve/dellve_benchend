@@ -1,5 +1,3 @@
-"""Summary
-"""
 import config
 import falcon
 import json

@@ -5,53 +5,43 @@ import gevent
 import gevent.event
 import gevent.pywsgi
 
+
 class WorkerAPI(object):
 
     __metaclass__ = abc.ABCMeta
 
     @abc.abstractproperty
     def pidfile(self):
-        """Summary
-
-        Returns:
-            TYPE: Description
-        """
+        """The name of PID-file for the worker"""
 
     @abc.abstractmethod
     def start(self):
-        """Summary
-
-        Returns:
-            TYPE: Description
-        """
+        """Starts DELLve worker"""
 
     @abc.abstractmethod
     def stop(self):
-        """Summary
+        """Stops DELLve worker.
 
-        Returns:
-            TYPE: Description
+        Args:
+            *args: Variable arguments list (for internal use only)
         """
 
     @abc.abstractproperty
     def workdir(self):
-        """Summary
-
-        Returns:
-            TYPE: Description
-        """
+        """The name of working directory for the worker"""
 
 
 class Worker(WorkerAPI):
-    """
-    @brief      DELLve background worker.
-    """
+    """DELLve background worker"""
 
     def __init__(self, port=config.get('http-port')):
         """
         @brief      Constructs a new DELLve worker.
 
         @param      port  HTTP API port
+
+        Args:
+            port (TYPE, optional): Description
         """
 
         # Create DELLve API instance
@@ -86,22 +76,20 @@ class Worker(WorkerAPI):
         self._exit.set()
         gevent.sleep()
 
-
     @property
     def pidfile(self):
-        """
-        @brief      The name of PID-file for the worker.
+        """The name of PID-file for the worker.
 
-        @return     PID-file name
+        Returns:
+            string: PID-file name
         """
-        return '.dellve/dellve.pid'
-
+        return config.get('pid-file')
 
     @property
     def workdir(self):
-        """
-        @brief      The name of working directory for the worker.
+        """The name of working directory for the worker.
 
-        @return     Working directory name
+        Returns:
+            string: Working directory name
         """
-        return '.dellve'
+        return config.get('app-dir')
