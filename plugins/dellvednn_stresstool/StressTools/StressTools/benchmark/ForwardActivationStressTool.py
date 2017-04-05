@@ -10,7 +10,7 @@ class ForwardActivationStressTool(dellve.Benchmark):
     def routine(self):
         # TODO: implement
         print self.memutil
-        n,c,h,w = problem_size.calculate_nchw(1,0.5)
+        n,c,h,w = problem_size.calculate_nchw_forward(1,self.memutil)
         print n
         print c
         print h
