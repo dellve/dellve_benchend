@@ -3,6 +3,7 @@ import json
 import os
 import os.path
 import pkg_resources as pr
+import shutil
 
 # Constants and default config values (for internal use only)
 
@@ -13,6 +14,23 @@ DEFAULT_BENCHMARKS = map(lambda item: item.load(),
     pr.iter_entry_points(group='dellve.benchmarks', name=None))
 DEFAULT_BENCHMARKS = list(DEFAULT_BENCHMARKS)  # convert generator to list
 DEFAULT_PID_FILE = os.path.join(DEFAULT_APP_DIR, 'dellve.pid')
+
+def create_app_dir():
+    # Create app directory
+    app_dir = DEFAULT_APP_DIR
+    if not os.path.exists(app_dir):
+        os.makedirs(app_dir)
+
+    # Get paths to DELLve configuration files
+    config_file = os.path.join(app_dir, 'config.json')
+    default_config_file = os.path.join(app_dir, 'default.config.json')
+
+    # Copy default JSON config files
+    shutil.copy('dellve/data/config.json', default_config_file)
+
+    # Copy main JSON config file
+    if not os.path.exists(config_file):
+        shutil.copy(default_config_file, config_file)
 
 # Private module members (for internal use only)
 #
