@@ -58,7 +58,7 @@ def run(run_all):
     """
 
     # Load benchmarks
-    benchmarks=config.get('benchmarks')
+    benchmarks=list(config.get('benchmarks'))
 
     if len(benchmarks) < 1: # ensure there're some benchmarks to be run
         click.echo('Please, install at least one benchmark plugin.', err=True)
@@ -90,7 +90,7 @@ def run(run_all):
 
     for benchmark_class in benchmarks:
         with tqdm.tqdm(desc=benchmark_class.name, total=100) as progress_bar:
-            benchmark = benchmark_class()
+            benchmark = benchmark_class.load()()
             benchmark.start()
             old_progress = 0
             while benchmark.is_running():

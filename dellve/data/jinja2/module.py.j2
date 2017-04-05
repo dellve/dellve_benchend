@@ -2,4 +2,7 @@
 import dellve
 
 class {{ benchmark_name }}(dellve.Benchmark): 
-	name = '{{ benchmark_name }}'
+    name = '{{ benchmark_name }}'
+
+    def routine(self):
+        # TODO: implement
