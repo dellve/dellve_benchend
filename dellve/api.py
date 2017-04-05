@@ -136,13 +136,18 @@ class HttpAPI(falcon.API):
             res.content_type = 'application/json'
 
             if self._current_benchmark is not None:
-                benchmark_id = self._current_benchmark_id
-                benchmark_progress = self._current_benchmark.progress
+                res.body = json.dumps({
+                    'id':           self._current_benchmark_id,
+                    'name':         self._current_benchmark.name,
+                    'progress':     self._current_benchmark.progress,
+                    'run_detail':   '', # TODO: return something meaningful!
+                    'running':      self._current_benchmark.is_running()
+                })
             else:
-                benchmark_id = None
-                benchmark_progress = None
-
-            res.body = json.dumps({
-                'id': benchmark_id,
-                'progress': benchmark_progress
-            })
+                res.body = json.dumps({
+                    'id':           None,
+                    'name':         None,
+                    'progress':     None,
+                    'run_detail':   None,
+                    'running':      None
+                })
