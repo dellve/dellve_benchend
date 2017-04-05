@@ -7,7 +7,6 @@ import pytest
 import tempfile
 import time
 import uuid
-import yaml
 
 @pytest.fixture(scope="module",
                 params=[0, 1, 2, 10])
@@ -31,11 +30,6 @@ def benchmarks(request):
 @pytest.fixture()
 def runner():
     return click.testing.CliRunner()
-
-@pytest.fixture(scope="module",
-                params=['.yaml', '.yml'])
-def yaml_file(request):
-    yield tempfile.mkstemp(suffix=request.param)
 
 def test_start_status_stop(runner, benchmarks):
     """Tests CLI 'start' and 'stop' command"""
