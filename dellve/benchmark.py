@@ -9,8 +9,7 @@ class Benchmark(mp.Process):
     """
 
     __metaclass__ = abc.ABCMeta
-    memutil = 1.0
-
+    memutil = .5
 
     def __init__(self):
         """Constructs a new Benchmark instance.
@@ -40,7 +39,7 @@ class Benchmark(mp.Process):
         def handler(*args, **kwargs):
             raise BenchmarkInterrupt()
         # Register SIGTERM handler
-        signal.signal(signal.SIGTERM, handler)
+        signal.signal(signal.SIGINT, handler)
         # Start benchmark routine
         self.routine(*args, **kwargs)
 
