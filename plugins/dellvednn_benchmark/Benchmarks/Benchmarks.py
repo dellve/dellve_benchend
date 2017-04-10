@@ -5,93 +5,136 @@ from helper import problem_set as ps
 
 class ForwardActivationBenchmark(BenchmarkFactory):
     name = 'ForwardActivationBenchmark'
-
-    def get_problem_set(self):
-        return ps.csv_get_problem_set('activation/basic.csv')
+    csv_filename = 'activation/basic.csv'
 
     def get_controller(self):
         return dcb.activation_forward
+
+    def get_problem_set(self):
+        return ps.csv_get_problem_set(self.csv_filename)
+
+    def get_problem_header(self):
+        return ps.csv_get_header(self.csv_filename)
 
 class BackwardActivationBenchmark(BenchmarkFactory):
     name = 'BackwardActivationBenchmark'
-
-    def get_problem_set(self):
-        return ps.csv_get_problem_set('activation/basic.csv')
+    csv_filename = 'activation/basic.csv'
 
     def get_controller(self):
         return dcb.activation_forward
 
+    def get_problem_set(self):
+        return ps.csv_get_problem_set(self.csv_filename)
+
+    def get_problem_header(self):
+        return ps.csv_get_header(self.csv_filename)
+
 class ForwardSoftmaxBenchmark(BenchmarkFactory):
     name = 'ForwardSoftmaxBenchmark'
-
-    def get_problem_set(self):
-        result = ps.csv_get_problem_set('softmax/basic.csv')
-        for s in result:
-            s.append('fast')
-        return result
+    csv_filename = 'softmax/basic.csv'
 
     def get_controller(self):
         return dcb.softmax_forward
 
-class BackwardSoftmaxBenchmark(BenchmarkFactory):
-    name = 'BackwardSoftmaxBenchmark'
-
     def get_problem_set(self):
-        result = ps.csv_get_problem_set('softmax/basic.csv')
+        result = ps.csv_get_problem_set(self.csv_filename)
         for s in result:
             s.append('fast')
         return result
 
+    def get_problem_header(self):
+        header = ps.csv_get_header(self.csv_filename)
+        header.append('algo')
+        return header
+
+class BackwardSoftmaxBenchmark(BenchmarkFactory):
+    name = 'BackwardSoftmaxBenchmark'
+    csv_filename = 'softmax/basic.csv'
+
     def get_controller(self):
         return dcb.softmax_backward
 
+    def get_problem_set(self):
+        result = ps.csv_get_problem_set(self.csv_filename)
+        for s in result:
+            s.append('fast')
+        return result
+
+    def get_problem_header(self):
+        header = ps.csv_get_header(self.csv_filename)
+        header.append('algo')
+        return header
+
 class ForwardPoolingBenchmark(BenchmarkFactory):
     name = 'ForwardPoolingBenchmark'
-
-    def get_problem_set(self):
-        result = ps.csv_get_problem_set('pooling/basic.csv')
-        for s in result:
-            s.append('max')
-        return result
+    csv_filename = 'pooling/basic.csv'
 
     def get_controller(self):
         return dcb.pooling_forward
 
-class BackwardPoolingBenchmark(BenchmarkFactory):
-    name = 'BackwardPoolingBenchmark'
-
     def get_problem_set(self):
-        result = ps.csv_get_problem_set('pooling/basic.csv')
+        result = ps.csv_get_problem_set(self.csv_filename)
         for s in result:
             s.append('max')
         return result
 
+    def get_problem_header(self):
+        header = ps.csv_get_header(self.csv_filename)
+        header.append('algo')
+        return header
+
+class BackwardPoolingBenchmark(BenchmarkFactory):
+    name = 'BackwardPoolingBenchmark'
+    csv_filename = 'pooling/basic.csv'
+
     def get_controller(self):
-        return dcb.pooling_backawrd
+        return dcb.pooling_backward
+
+    def get_problem_set(self):
+        result = ps.csv_get_problem_set(self.csv_filename)
+        for s in result:
+            s.append('max')
+        return result
+
+    def get_problem_header(self):
+        header = ps.csv_get_header(self.csv_filename)
+        header.append('algo')
+        return header
 
 class ForwardConvolutionBenchmark(BenchmarkFactory):
     name = 'ForwardConvolutionBenchmark'
-
-    def get_problem_set(self):
-        return ps.csv_get_problem_set('convolution/forward_basic.csv')
+    csv_filename = 'convolution/forward_basic.csv'
 
     def get_controller(self):
         return dcb.convolution_forward
 
+    def get_problem_set(self):
+        return ps.csv_get_problem_set(self.csv_filename)
+
+    def get_problem_header(self):
+        return ps.csv_get_header(self.csv_filename)
+
 class BackwardConvolutionDataBenchmark(BenchmarkFactory):
     name = 'BackwardConvolutionDataBenchmark'
-
-    def get_problem_set(self):
-        return ps.csv_get_problem_set('convolution/backward_data_basic.csv')
+    csv_filename = 'convolution/backward_data_basic.csv'
 
     def get_controller(self):
         return dcb.convolution_backward_data
 
+    def get_problem_set(self):
+        return ps.csv_get_problem_set(self.csv_filename)
+
+    def get_problem_header(self):
+        return ps.csv_get_header(self.csv_filename)
+
 class BackwardConvolutionFilterBenchmark(BenchmarkFactory):
     name = 'BackwardConvolutionFilterBenchmark'
-
-    def get_problem_set(self):
-        return ps.csv_get_problem_set('convolution/backward_filter_basic.csv')
+    csv_filename = 'convolution/backward_filter_basic.csv'
 
     def get_controller(self):
         return dcb.convolution_backward_filter
+    def get_problem_set(self):
+        return ps.csv_get_problem_set(self.csv_filename)
+
+    def get_problem_header(self):
+        return ps.csv_get_header(self.csv_filename)
