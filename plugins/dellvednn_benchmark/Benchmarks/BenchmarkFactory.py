@@ -32,6 +32,7 @@ class BenchmarkFactory(Benchmark):
                     self.update_progress(problem_number, problem_set_size)
                     time.sleep(0.25)
 
+                self.update_progress(problem_number, problem_set_size)
                 results.append(self.controller.get_avg_time_micro())
 
             except BenchmarkInterrupt:

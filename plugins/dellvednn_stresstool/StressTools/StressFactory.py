@@ -19,6 +19,9 @@ class StressToolFactory(Benchmark):
                 self.update_progress()
                 time.sleep(0.5)
 
+            self.update_progress()
+            # TODO: output performance details
+
         except BenchmarkInterrupt:
             print '\nStopping current stress tool'
             self.controller.stop()
