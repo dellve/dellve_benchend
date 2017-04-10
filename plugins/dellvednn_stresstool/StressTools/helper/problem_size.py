@@ -41,3 +41,29 @@ def calculate_nchw_softmax_backward(device_id, mem_util):
     mem /= 8
 
     return calculate_nchw(mem)
+
+# Stuff~
+def add_pooling(mem):
+    dep = 633*1024*1024
+    dep_source = 1848705024
+    dep_f = mem/float(dep_source)
+    dep *= dep_f
+    dep *= (1.5)
+
+    return int(dep) 
+
+# Stuff~
+def calculate_nchw_pooling_forward(device_id, mem_util):
+    overhead = (71*1000*1000)
+    mem = int(gpu_info.get_total_mem(device_id) * mem_util)
+
+    s = add_pooling(mem)
+    mem += s
+
+    #mem += s
+    mem /= 8
+
+    return calculate_nchw(mem)
+
+
+     
