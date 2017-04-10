@@ -47,6 +47,7 @@ class ForwardPoolingStressTool(StressToolFactory):
         print h
         print w
         controller = dcb.pooling_forward(w,h,c,n,10,10,0,0,2,2,"max")
+        return controller
 
 class BackwardPoolingStressTool(StressToolFactory): 
     name = 'BackwardPoolingStressTool'
@@ -60,3 +61,4 @@ class BackwardPoolingStressTool(StressToolFactory):
         print h
         print w
         controller = dcb.pooling_forward(w,h,c,n,10,10,0,0,2,2,"max")
+        return controller
