@@ -19,7 +19,7 @@
 namespace CuDNN {
     namespace Pooling {
         CuDNN::PoolingMode convertMode(std::string mode) {
-            std::cout << "Setting Pooling Mode to " << mode << std::endl;
+            // std::cout << "Setting Pooling Mode to " << mode << std::endl;
             if(mode.compare("max") == 0) {
                 return CUDNN_POOLING_MAX;
             } else if (mode.compare("avgpad") == 0) {

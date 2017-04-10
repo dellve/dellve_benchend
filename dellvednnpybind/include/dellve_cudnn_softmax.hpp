@@ -18,7 +18,7 @@
 namespace CuDNN {
     namespace Softmax {
         CuDNN::SoftmaxAlgorithm convAlgorithm(std::string alg) {
-            std::cout << "Setting Softmax Algorithm to " << alg << std::endl;
+            // std::cout << "Setting Softmax Algorithm to " << alg << std::endl;
             if(alg.compare("fast") == 0) {
                 return CUDNN_SOFTMAX_FAST;
             } else if (alg.compare("accurate") == 0) {
