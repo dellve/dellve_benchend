@@ -39,6 +39,7 @@ class Benchmark(mp.Process):
         def handler(*args, **kwargs):
             raise BenchmarkInterrupt()
         # Register SIGTERM handler
+        signal.signal(signal.SIGTERM, handler)
         signal.signal(signal.SIGINT, handler)
         # Start benchmark routine
         self.routine(*args, **kwargs)
