@@ -1,4 +1,3 @@
-
 import dellve
 import dellve_cudnn_benchmark as dcb
 import time
