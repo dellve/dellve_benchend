@@ -1,2 +1,2 @@
-w, h, c, n, k, r, s, pad_w, pad_h, wstride, hstride, 
-568, 245, 128, 16, 256, 3, 3, 1, 1, 1, 1,
+w, h, c, n, k, r, s, pad_w, pad_h, wstride, hstride
+568, 245, 128, 16, 256, 3, 3, 1, 1, 1, 1
