@@ -19,7 +19,7 @@ class BenchmarkFactory(dellve.Benchmark):
 
         for problem_number, problem in enumerate(problem_set):
             controller = control_constructor(*problem)
-            controller.start(1, 1)
+            controller.start(1, 50)
 
             p = 0.0
             while (p != 1.0):
