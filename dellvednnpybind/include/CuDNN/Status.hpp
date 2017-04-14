@@ -2,6 +2,7 @@
 #define PYCUDNN_STATUS_HPP
 
 #include <cudnn.h>
+#include <iostream>
 
 namespace CuDNN {
 	typedef cudnnStatus_t Status;
@@ -45,7 +46,9 @@ namespace CuDNN {
 
 	void checkStatus(Status status) {
       	if (status != CUDNN_STATUS_SUCCESS) {
-        	throw Exception(status);
+            Exception e = Exception(status);
+            std::cout << e.what() << std::endl;
+        	throw e;
       	}
 	}
 }
