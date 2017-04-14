@@ -15,5 +15,6 @@ setup (
     BackwardSoftmaxStressTool=StressTools:BackwardSoftmaxStressTool
     ForwardPoolingStressTool=StressTools:ForwardPoolingStressTool
     BackwardPoolingStressTool=StressTools:BackwardPoolingStressTool
+    ForwardConvolutionStressTool=StressTools:ForwardConvolutionStressTool
     '''
 )

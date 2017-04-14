@@ -3,8 +3,7 @@ import math
 
 __OVERHEAD = 71*1000*1000
 
-def calculate_nchw(mem):
-    c = 1
+def calculate_nchw(mem, c=1):
     n = 75
 
     mem = mem/c
@@ -51,4 +50,16 @@ def calculate_nchw_pooling(device_id, mem_util, win, pad, stride):
 
     h = ((hp - 1) * stride) + win - 2*pad
     
+    return n,c,h,h
+
+def calculate_nchw_convolution(device_id, mem_util, k, win, pad, stride):
+    mem = int(gpu_info.get_total_mem(device_id) * mem_util)
+
+    mem -= (__OVERHEAD)
+    mem /= 8
+    
+    n,c,hp,wp = calculate_nchw(mem, c=k)
+
+    h = ((hp - 1) * stride) + win - 2*pad
+
     return n,c,h,h

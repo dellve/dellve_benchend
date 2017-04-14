@@ -59,5 +59,15 @@ class BackwardPoolingStressTool(StressToolFactory):
         controller = dcb.pooling_backward(w, h, c, n, win, win, pad, pad, stride, stride, "max")
         return controller
 
+class ForwardConvolutionStressTool(StressToolFactory):
+    name = 'ForwardConvolutionStressTool'
 
+    def get_controller(self):
+        win = 3
+        pad = 1
+        stride = 1
+        k = 3
+        n,c,h,w = problem_size.calculate_nchw_convolution(1,self.memutil,k,win,pad,stride)
         
+        controller = dcb.convolution_forward(w, h, c, n, k, win, win, pad, pad, stride, stride)
+        return controller
