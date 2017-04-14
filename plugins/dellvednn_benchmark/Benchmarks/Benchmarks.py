@@ -133,6 +133,7 @@ class BackwardConvolutionFilterBenchmark(BenchmarkFactory):
 
     def get_controller(self):
         return dcb.convolution_backward_filter
+
     def get_problem_set(self):
         return ps.csv_get_problem_set(self.csv_filename)
 
