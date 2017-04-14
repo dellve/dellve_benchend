@@ -7,4 +7,5 @@ __all__ = ['ForwardActivationStressTool',
            'BackwardSoftmaxStressTool',
            'ForwardPoolingStressTool',
            'BackwardPoolingStressTool',
-           'ForwardConvolutionStressTool']
+           'ForwardConvolutionStressTool',
+           'BackwardConvolutionDataStressTool']
