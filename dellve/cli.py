@@ -1,15 +1,15 @@
 import api
 import benchmark
 import click
-import daemon
 import config
+import daemon
 import os
 import pick
+import shutil
+import sys
 import template
 import time
 import tqdm
-import sys
-import shutil
 
 @click.group()
 @click.option('--config-file', 'config_file',
