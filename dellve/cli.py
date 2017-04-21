@@ -109,8 +109,7 @@ def run(run_all):
         benchmarks = [b for b in benchmarks if b.name in selected]
 
     for benchmark_class in benchmarks:
-        with tqdm.tqdm(desc=benchmark_class.name, total=100,
-                       bar_format='{l_bar}{bar}| [{elapsed}]') as progress_bar:
+        with tqdm.tqdm(desc=benchmark_class.name, total=100) as progress_bar:
             benchmark = benchmark_class()
             benchmark.start()
             old_progress = 0
@@ -119,6 +118,7 @@ def run(run_all):
                 progress_bar.update(new_progress - old_progress)
                 old_progress = new_progress
                 time.sleep(0.01)
+        print ''.join(benchmark.output)
 
 
 @cli.command('new', short_help='Create a new benchmark.')
