@@ -53,18 +53,21 @@ class Worker(WorkerAPI):
         # Create event to wait for on exit
         self._exit = gevent.event.Event()
 
+        # Create event to notify on exit
+        self._exited = gevent.event.Event()
+
     def start(self):
         """Starts DELLve worker"""
         print 'Starting dellve worker ... OK'
 
-        # Start server
+        # Start server!!!
         self._server.start()
 
-        # Wait forever...
+        # Wait for exit...
         self._exit.wait()
 
-        # Stop server
-        self._server.stop()
+        # Notify handler!
+        self._exited.set()
 
     def stop(self, *args):
         """Stops DELLve worker.
@@ -73,8 +76,17 @@ class Worker(WorkerAPI):
             *args: Variable arguments list (for internal use only)
         """
         print 'Stopping dellve worker ... OK'
-        self._exit.set()
-        gevent.sleep()
+
+        def stop_server():
+            # Stop server!!!
+            self._server.stop()
+            # Request exit!
+            self._exit.set()
+            # Wait for exit...
+            self._exited.wait()
+
+        # Wait for server to stop...
+        gevent.spawn(stop_server)
 
     @property
     def pidfile(self):
