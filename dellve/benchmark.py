@@ -3,19 +3,35 @@ import multiprocessing as mp
 import ctypes
 import signal
 import pkg_resources
+import StringIO
+import sys
+
+class BenchmarkIO(StringIO.StringIO):
+    """Helper class for collecting output from DELLve benchmarks.
+    """
+    def __init__(self, queue, *args, **kwargs):
+        StringIO.StringIO.__init__(self, *args, **kwargs)
+        self.__queue = queue # IPC queue
+
+    def write(self, s):
+        self.__queue.put(s)
 
 class Benchmark(mp.Process):
     """Abstract base class for all DELLve benchmarks.
     """
 
     __metaclass__ = abc.ABCMeta
-    memutil = .5
+
+    memutil = 1.0
+
 
     def __init__(self):
         """Constructs a new Benchmark instance.
         """
         mp.Process.__init__(self)
         self.__progress = mp.Value(ctypes.c_float)
+        self.__queue = mp.Queue()
+        self.__output = []
 
     @property
     def progress(self):
@@ -34,13 +50,20 @@ class Benchmark(mp.Process):
             raise ValueError(value)
         self.__progress.value = value
 
+    @property
+    def output(self):
+        for _ in range(0, self.__queue.qsize()):
+            self.__output.append(self.__queue.get())
+        return self.__output
+
     def run(self, *args, **kwargs):
         # Create SIGTERM handler
         def handler(*args, **kwargs):
             raise BenchmarkInterrupt()
         # Register SIGTERM handler
         signal.signal(signal.SIGTERM, handler)
-        signal.signal(signal.SIGINT, handler)
+        # Re-map STDOUT and STDERR
+        sys.stdout = sys.stderr = BenchmarkIO(self.__queue)
         # Start benchmark routine
         self.routine(*args, **kwargs)
 
