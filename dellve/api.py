@@ -3,6 +3,7 @@ import falcon
 import json
 import gevent
 import gevent.lock
+import logging
 
 class HttpRoute(object):
     """DELLve REST API route base-class.
@@ -50,7 +51,7 @@ class HttpAPI(falcon.API):
         """
 
         # Construct parent class
-        falcon.API.__init__(self)
+        falcon.API.__init__(self, middleware=[RequestLoggingMiddleware()])
 
         # Create synchronization semaphore
         self._lock = gevent.lock.Semaphore()
@@ -151,3 +152,8 @@ class HttpAPI(falcon.API):
                     'run_detail':   None,
                     'running':      None
                 })
+
+class RequestLoggingMiddleware(object):
+    def process_request(self, req, resp):
+        logging.info('HTTP API -- {0} {1} {2}'
+            .format(req.method, req.relative_uri, resp.status[:3]))
