@@ -9,6 +9,7 @@ import shutil
 
 APP_NAME = 'dellve'
 DEFAULT_APP_DIR = click.get_app_dir(APP_NAME)
+DEFAULT_HTTP_HOST = '127.0.0.1'
 DEFAULT_HTTP_PORT = 9999
 DEFAULT_BENCHMARKS = map(lambda item: item.load(),
     pr.iter_entry_points(group='dellve.benchmarks', name=None))
@@ -40,6 +41,7 @@ __config = {
     'app-dir':      DEFAULT_APP_DIR,
     'benchmarks':   DEFAULT_BENCHMARKS,
     'config-file':  DEFAULT_CONFIG_FILE,
+    'http-host':    DEFAULT_HTTP_HOST,
     'http-port':    DEFAULT_HTTP_PORT,
     'pid-file':     DEFAULT_PID_FILE,
 }
