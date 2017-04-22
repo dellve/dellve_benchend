@@ -4,9 +4,12 @@ import config
 import gevent
 import gevent.event
 import gevent.pywsgi
-
+import logging
+import sys
+import traceback
 
 class WorkerAPI(object):
+    """Abstract DELLve background worker interface"""
 
     __metaclass__ = abc.ABCMeta
 
@@ -58,14 +61,29 @@ class Worker(WorkerAPI):
 
     def start(self):
         """Starts DELLve worker"""
+        # Let the user worker started via STDOUT
+        #
+        # TODO: this can be eliminated if we configure logging system
+        #       to print INFO messages to STDOUT in config.py logging setup
+        #
         print 'Starting dellve worker ... OK'
+        logging.info('Started dellve worker')
 
-        # Start server!!!
-        self._server.start()
+        # Note: we could use self._server.serve_forever() here, but since we
+        #       need to notify user about successful server start, we rely
+        #       on event self._exit / self._exited, and server methods
+        #       self._server.start() / self._server.stop() instead.
+
+        try: # Start server...
+            self._server.start()
+        except Exception: # Report unsuccessful server start
+            logging.exception('Couldn\'t start dellve HTTP server')
+            return # there's nothing we can do without server running
+        else: # Report successful server start
+            logging.info('Started dellve HTTP server')
 
         # Wait for exit...
         self._exit.wait()
-
         # Notify handler!
         self._exited.set()
 
@@ -75,15 +93,32 @@ class Worker(WorkerAPI):
         Args:
             *args: Variable arguments list (for internal use only)
         """
-        print 'Stopping dellve worker ... OK'
+
+        # Note: this method is called from within gevent run loop, so we can't
+        #       call any blocking functions here; instead, we create new
+        #       greenlet that is going to do all the work for us; this greenlet
+        #       won't exit before other greenlets, thus ensuring graceful exit
 
         def stop_server():
-            # Stop server!!!
-            self._server.stop()
+            try: # Stop server...
+                self._server.stop()
+            except Exception: # Report unsuccessful server stop
+                logging.exception('Couldn\'t stop dellve HTTP server')
+                return # there's nothing we can do with server running
+            else: # Report successful server stop
+                logging.info('Stopped dellve HTTP server')
+
             # Request exit!
             self._exit.set()
             # Wait for exit...
             self._exited.wait()
+            # Let the user worker stopped via STDOUT
+            #
+            # TODO: this can be eliminated if we configure logging system
+            #       to print INFO messages to STDOUT in config.py logging setup
+            #
+            print 'Stopping dellve worker ... OK'
+            logging.info('Stopped dellve worker')
 
         # Wait for server to stop...
         gevent.spawn(stop_server)

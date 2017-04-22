@@ -57,12 +57,12 @@ logging.config.dictConfig({
             'filename': os.path.join(DEFAULT_LOG_DIR, 'log'),
             'formatter': 'verbose',
             'interval': 15, # create new logging file every 15 minutes
-            'level': 'INFO',
+            'level': 'DEBUG',
             'when': 'M',
         }
     },
     'root': {
-        'level': 'INFO',
+        'level': 'DEBUG',
         'propagate': True,
         'handlers': ['rotating-file-handler'],
     }
