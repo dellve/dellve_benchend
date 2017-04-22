@@ -12,6 +12,7 @@ def test_benchmark():
     # Create mock benchmark implementation that will
     # set it's progress to predefined value once it runs
     class MockBenchmark(dellve.benchmark.Benchmark):
+        config = dellve.benchmark.BenchmarkConfig([])
         def routine(self):
             self.progress = benchmark_progress
             while True:
@@ -56,6 +57,7 @@ def test_benchmark_progress():
     #       implementation of its abstract methods to
     #       be able to create an instance of it.
     class MockBenchmark(dellve.benchmark.Benchmark):
+        config = dellve.benchmark.BenchmarkConfig([])
         def routine(self):
             pass
 

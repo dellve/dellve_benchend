@@ -7,6 +7,11 @@ indent_size = 4
 indent_style = tab
 end_of_line = lf
 
+[*.j2]
+indent_size = 4
+indent_style = space
+end_of_line = lf
+
 [{*py,*.yaml,*.yml}]
 indent_size = 4
 indent_style = space

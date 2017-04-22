@@ -15,6 +15,8 @@ class MockBenchmark(dellve.benchmark.Benchmark):
     """
     name = 'MockBenchmark'
 
+    config = dellve.benchmark.BenchmarkConfig([])
+
     def routine(self):
         try:
             start_counter.value += 1

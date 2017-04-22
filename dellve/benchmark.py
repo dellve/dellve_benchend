@@ -1,20 +1,13 @@
 import abc
-import multiprocessing as mp
+import collections
+import copy
 import ctypes
-import signal
+import multiprocessing as mp
 import pkg_resources
+import signal
 import StringIO
 import sys
 
-class BenchmarkIO(StringIO.StringIO):
-    """Helper class for collecting output from DELLve benchmarks.
-    """
-    def __init__(self, queue, *args, **kwargs):
-        StringIO.StringIO.__init__(self, *args, **kwargs)
-        self.__queue = queue # IPC queue
-
-    def write(self, s):
-        self.__queue.put(s)
 
 class Benchmark(mp.Process):
     """Abstract base class for all DELLve benchmarks.
@@ -22,16 +15,20 @@ class Benchmark(mp.Process):
 
     __metaclass__ = abc.ABCMeta
 
-    memutil = 1.0
-
-
-    def __init__(self):
+    def __init__(self, config=None):
         """Constructs a new Benchmark instance.
         """
         mp.Process.__init__(self)
         self.__progress = mp.Value(ctypes.c_float)
         self.__queue = mp.Queue()
         self.__output = []
+
+        # Set config (optionally)
+        if config is not None:
+            if not isinstance(config, dict):
+                raise TypeError(config)
+            else:
+                self.config = config
 
     @property
     def progress(self):
@@ -56,16 +53,22 @@ class Benchmark(mp.Process):
             self.__output.append(self.__queue.get())
         return self.__output
 
-    def run(self, *args, **kwargs):
+    def run(self, debug=False):
         # Create SIGTERM handler
         def handler(*args, **kwargs):
             raise BenchmarkInterrupt()
         # Register SIGTERM handler
         signal.signal(signal.SIGTERM, handler)
         # Re-map STDOUT and STDERR
-        sys.stdout = sys.stderr = BenchmarkIO(self.__queue)
+        if not debug:
+            # Note: if debugging is enabled we 'print' as usual
+            sys.stdout = sys.stderr = BenchmarkIO(self.__queue)
         # Start benchmark routine
-        self.routine(*args, **kwargs)
+        self.routine()
+
+    @abc.abstractproperty
+    def config(self):
+        """Defines benchmark configuration options"""
 
     @abc.abstractmethod
     def routine(self):
@@ -74,6 +77,9 @@ class Benchmark(mp.Process):
         This method is the main extension point for all user defined benchmarks.
         To create a new benchmark, one has to define a new class derived
         from dellve.benchmark.Benchmark, overwritting its routine method.
+
+        Args:
+            config: Benchmark configuration object.
 
         For example:
 
@@ -123,6 +129,24 @@ class Benchmark(mp.Process):
         """
         mp.Process.terminate(self)
 
-class BenchmarkInterrupt(Exception):
-    """Custom exception that is raised when benchmark is interrupted with SIGTERM signal.
+
+class BenchmarkConfig(collections.OrderedDict):
+    """Helper class for defining configuration of DELLve benchmarks.
     """
+
+
+class BenchmarkInterrupt(Exception):
+    """Exception class that is raised when benchmark is interrupted by OS signal.
+    """
+
+
+class BenchmarkIO(StringIO.StringIO):
+    """Helper class for collecting output from DELLve benchmarks.
+    """
+
+    def __init__(self, queue, *args, **kwargs):
+        StringIO.StringIO.__init__(self, *args, **kwargs)
+        self.__queue = queue  # IPC queue
+
+    def write(self, s):
+        self.__queue.put(s)

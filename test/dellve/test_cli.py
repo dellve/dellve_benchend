@@ -17,7 +17,7 @@ def benchmarks(request):
         class Benchmark(dellve.benchmark.Benchmark):
 
             name = 'Benchmark%d' % count
-
+            config = dellve.benchmark.BenchmarkConfig([])
             def routine(self):
                 for p in range(0, 101):
                     self.progress = p
