@@ -42,12 +42,16 @@ logging.config.dictConfig({
     'formatters': {
         'verbose': {
             'datefmt': '%Y-%m-%d %H:%M:%S',
-            'format': '%(asctime)s -- ' # Date & Time
-                      'FILE: %(filename)s -- ' # File name
-                      'LINE: %(lineno)d -- ' # Line number
-                      'PROCESS: %(process)d %(processName)s -- ' # Process info
-                      'THREAD: %(thread)d %(threadName)s \n'    # Thread info
-                      ' %(levelname)s: %(message)s',  # Level + Message
+            'format': '\n\%(levelname)s -- %(asctime)s\n'
+                      '\n'
+                      '    File:           %(filename)s\n'
+                      '    Line:           %(lineno)d\n'
+                      '    Process ID:     %(process)d\n'
+                      '    Process Name:   %(processName)s\n'
+                      '    Thread ID:      %(thread)d\n'
+                      '    Thread Name:    %(threadName)s\n'
+                      '\n'
+                      '%(message)s\n'
         },
     },
     'handlers': {
