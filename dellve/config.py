@@ -1,5 +1,6 @@
 import click
 import json
+import logging.config
 import os
 import os.path
 import pkg_resources as pr
@@ -9,6 +10,7 @@ import shutil
 
 APP_NAME = 'dellve'
 DEFAULT_APP_DIR = click.get_app_dir(APP_NAME)
+DEFAULT_LOG_DIR = os.path.join(DEFAULT_APP_DIR, 'logs')
 DEFAULT_HTTP_HOST = '127.0.0.1'
 DEFAULT_HTTP_PORT = 9999
 DEFAULT_BENCHMARKS = map(lambda item: item.load(),
@@ -21,6 +23,10 @@ DEFAULT_CONFIG_FILE = os.path.join(DEFAULT_APP_DIR, 'config.json')
 if not os.path.exists(DEFAULT_APP_DIR):
     os.makedirs(DEFAULT_APP_DIR)
 
+# Create app-logs directory
+if not os.path.exists(DEFAULT_LOG_DIR):
+    os.makedirs(DEFAULT_LOG_DIR)
+
 # Create config file (if one doesn't exist)
 if not os.path.exists(DEFAULT_CONFIG_FILE):
     shutil.copy(os.path.join(os.path.dirname(__file__), 'data/config.json'),
@@ -29,6 +35,38 @@ if not os.path.exists(DEFAULT_CONFIG_FILE):
 # Copy default config file (regardless if it exists)
 shutil.copy(os.path.join(os.path.dirname(__file__), 'data/config.json'),
             os.path.join(DEFAULT_APP_DIR, 'default.config.json'))
+
+# Configure logging
+logging.config.dictConfig({
+    'version': 1,
+    'formatters': {
+        'verbose': {
+            'datefmt': '%Y-%m-%d %H:%M:%S',
+            'format': '%(asctime)s -- ' # Date & Time
+                      'FILE: %(filename)s -- ' # File name
+                      'LINE: %(lineno)d -- ' # Line number
+                      'PROCESS: %(process)d %(processName)s -- ' # Process info
+                      'THREAD: %(thread)d %(threadName)s \n'    # Thread info
+                      ' %(levelname)s: %(message)s',  # Level + Message
+        },
+    },
+    'handlers': {
+        'rotating-file-handler': {
+            'backupCount': 4, # always keep last 4 logging files
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.path.join(DEFAULT_LOG_DIR, 'log'),
+            'formatter': 'verbose',
+            'interval': 15, # create new logging file every 15 minutes
+            'level': 'INFO',
+            'when': 'M',
+        }
+    },
+    'root': {
+        'level': 'INFO',
+        'propagate': True,
+        'handlers': ['rotating-file-handler'],
+    }
+})
 
 # Private module members (for internal use only)
 #
