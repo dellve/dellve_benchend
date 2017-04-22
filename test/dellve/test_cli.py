@@ -52,6 +52,9 @@ def test_start_status_stop(runner, benchmarks):
     assert result.output == 'Stopping benchmark service...\n'
     assert result.exit_code == -1
 
+'''
+TODO: rewrite tests to use HTTP API to query benchmarks.
+Possibly have a mock API.
 def test_ls(runner, benchmarks):
     """Tests CLI 'ls' command
 
@@ -76,6 +79,4 @@ def test_ls(runner, benchmarks):
     else:
         # Note: we shouldn't get any ouput if there's no installed benchmarks
         assert result.output == ''
-
-
-
+'''
