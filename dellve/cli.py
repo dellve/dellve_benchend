@@ -5,7 +5,9 @@ import config
 import daemon
 import os
 import pick
+import requests
 import shutil
+import signal
 import sys
 import template
 import time
@@ -35,13 +37,39 @@ def _config():
     # Open file in default editor
     click.edit(filename=config_file)
 
+def validate_api(ctx, param, value):
+    # TODO
+    # Validate values
+
+    try:
+        api = 'http://{}:{}'.format(value[0], value[1])
+        r = requests.get('{}/benchmark'.format(api))
+        return api
+
+    except requests.ConnectionError:
+        raise click.BadParameter('Could not connect to {}'.format(api))
+
 
 @cli.command('ls', short_help='List installed benchmarks.')
-def ls():
-    """Lists installed DELLve benchmarks.
+@click.option('--server', '-s', 'api', help='Host and port of remote server API.',
+              type=(str, int), metavar='<HOST> <PORT>', callback=validate_api,
+              default=(config.get('http-host'), config.get('http-port')))
+def ls(api):
+    """Lists installed DELLve benchmarks on the local machine or on a remote server.
+
+    If HOST and PORT are not specified, benchmarks installed on the local
+    machine are listed (Default values for HOST and PORT are specified in
+    config file).
+
+    We can also list benchmarks installed on a remote server by specifying the
+    HOST and PORT the server's Dellve API is available on.
     """
-    for benchmark in config.get('benchmarks'):
-        print ' ', benchmark.name
+
+    # Load benchmarks
+    benchmarks = requests_get_with_error('{}/benchmark'.format(api),
+                             'Unable to query installed benchmarks')
+
+    print '\n'.join(['    ' + b['name'] for b in benchmarks])
 
 
 @cli.command('start', short_help='Start the benchmark service.')
@@ -69,57 +97,85 @@ def stop():
     click.echo('Stopping benchmark service...')
     daemon.Daemon().do_action('stop')
 
+@cli.command('run', short_help='Runs the benchmarks either locally or remotely.')
+@click.option('--server', '-s', 'api', help='Host and port of remote server API.',
+              type=(str, int), metavar='<HOST> <PORT>', callback=validate_api,
+              default=(config.get('http-host'), config.get('http-port')))
+def run(api):
+    """Runs the specified benchmarks.
 
-@cli.command('run', short_help='Run the benchmarks.')
-@click.option('--all', '-A', 'run_all', default=False, is_flag=True,
-              help='Run all benchmarks.')
-def run(run_all):
-    """Runs the user specified benchmarks
+    If HOST and PORT are not specified, benchmarks are run on the local machine
+    (Default values for HOST and PORT are specified in config file).
+
+    We can also run benchmarks on a remote server by specifying the HOST and PORT
+    the server's API is available on.
     """
 
     # Load benchmarks
-    benchmarks = config.get('benchmarks')
+    benchmarks = requests_get_with_error('{}/benchmark'.format(api),
+                             'Unable to query installed benchmarks')
 
-    if len(benchmarks) < 1:  # ensure there're some benchmarks to be run
+    # Ensure there're some benchmarks to be run
+    if (len(benchmarks) < 1):
         click.echo('Please, install at least one benchmark plugin.', err=True)
         return
 
-    # Note: user may select to run all benchmarks with --all/-A flag;
-    #       if -all/-A flag is set, we run every single one of the 'benchmarks';
-    #       otherwise, we prompt user to select a subset of the 'benchmarks'.
+    # Select which benchmarks to run
+    options = [b['name'] for b in benchmarks]
+    title = '\n'.join([
+        'Please select benchmarks to run:',
+        '',
+        'Press UP and DOWN arrow keys to navigate',
+        'Press SPACE to select benchmarks',
+        'Press ENTER to proceede'
+    ])
+    picked = pick.pick(options, title, indicator='+', multi_select=True)
 
-    if not run_all:
-        options = [b.name for b in benchmarks]
-        title = '\n'.join([
-            'Please select benchmarks to run:',
-            '',
-            'Press UP and DOWN arrow keys to navigate',
-            'Press SPACE to select benchmarks',
-            'Press ENTER to proceede'
-        ])
+    # Get benchmark IDs for selected benchmarks
+    picked_idx = [int(index) for name, index in picked]
+    picked_idx.sort()
+    benchmark_ids = [benchmarks[i]['id'] for i in picked_idx]
 
-        # Ask user to pick benchmarks that he/she/ze wants to run
-        picked = pick.pick(options, title, indicator='+', multi_select=True)
+    # Run benchmarks sequentially
+    for bid in benchmark_ids:
+        # Start benchmark
+        r_start = requests.get('{api}/benchmark/{bid}/start'.format(api=api, bid=bid))
 
-        # Note: pick() returns list of (name, index) pairs; since we only care
-        #       about names in this list, we remove indexes from it below
-        selected = {name for name, index in picked}
+        if (r_start.ok):
+            # Ensure SIGINT/SIGTERM on CLI will also terminate running benchmark
+            def handler(signum, frame):
+                print 'Received signal: {}'.format(signum)
+                print 'Stopping benchmark...'
+                r_stop = requests.get('{api}/benchmark/{bid}/stop'.format(api=api, bid=bid))
+                if (r_stop.ok):
+                    print 'OK'
 
-        # Filter out benchmarks that weren't selected
-        benchmarks = [b for b in benchmarks if b.name in selected]
+                sys.exit(signum) # TODO: set proper exit code
 
-    for benchmark_class in benchmarks:
-        with tqdm.tqdm(desc=benchmark_class.name, total=100) as progress_bar:
-            benchmark = benchmark_class()
-            benchmark.start()
-            old_progress = 0
-            while benchmark.is_running():
-                new_progress = benchmark.progress
-                progress_bar.update(new_progress - old_progress)
-                old_progress = new_progress
-                time.sleep(0.01)
-        print ''.join(benchmark.output)
+            signal.signal(signal.SIGINT, handler)
+            signal.signal(signal.SIGTERM, handler)
 
+            # See if benchmark is running
+            progress = requests_get_with_error('{api}/benchmark/progress'.format(api=api),
+                                   'Unable to query benchmark progress')
+
+            # Create progress bar
+            with tqdm.tqdm(desc=progress['name'], total=100) as progress_bar:
+                old_progress = 0
+                while (progress['running']):
+                    progress = requests_get_with_error('{api}/benchmark/progress'.format(api=api),
+                                           'Unable to query benchmark progress')
+                    new_progress = progress['progress']
+                    progress_bar.update(new_progress - old_progress)
+                    old_progress = new_progress
+                    time.sleep(0.01)
+
+            # TODO: get console output through run_detail
+            # print ''.join(benchmark.output)
+
+        else:
+            click.echo('Unable to start benchmark(s)', err=True)
+            break
 
 @cli.command('new', short_help='Create a new benchmark.')
 def new():
@@ -129,3 +185,12 @@ def new():
     package_name = click.prompt('Please enter a Python package name')
     benchmark_name = click.prompt('Please enter a unique benchmark class name')
     template.Template().render(dir_name, package_name, benchmark_name)
+
+def requests_get_with_error(url, err_msg):
+    r = requests.get(url)
+    if (r.ok):
+        return r.json()
+
+    else:
+        click.echo(err_msg, err=True)
+        sys.exit(-1)

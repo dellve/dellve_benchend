@@ -24,6 +24,7 @@ setuptools.setup(
         'gevent',
         'jinja2',
         'pick',
+        'requests',
         'stringcase',
         'tqdm'
     ],
