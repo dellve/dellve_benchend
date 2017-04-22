@@ -2,6 +2,7 @@ import abc
 import collections
 import copy
 import ctypes
+import logging
 import multiprocessing as mp
 import pkg_resources
 import signal
@@ -118,7 +119,17 @@ class Benchmark(mp.Process):
 
             This method should be called at most once per life-span of a Benchmark object.
         """
-        mp.Process.start(self)
+
+        # Provide info for debugging purposes
+        logging.debug('Launching sub-process for %s...' % self.name)
+
+        try: # Start benchamrk
+            mp.Process.start(self)
+        except: # Report error
+            logging.exception('Couldn\'t launch sub-process for %s' % self.name)
+        else: # Report success
+            logging.info('Launched sub-process for %s with PID %d' % (self.name,
+                                                                      self.pid))
 
     def stop(self):
         """Stops benchmark routine and kills the sub-process.
@@ -127,7 +138,19 @@ class Benchmark(mp.Process):
 
             This method may be called multiple times per life-span of a Benchmark object.
         """
-        mp.Process.terminate(self)
+
+        # Note: this string is used several times in messages below
+        proc_with_pid = 'sub-process for %s with PID %d' % (self.name, self.pid)
+
+        # Provide info for debugging purposes
+        logging.debug('Terminating ' + proc_with_pid + ' ...')
+
+        try: # Stop benchamrk
+            mp.Process.terminate(self)
+        except: # Report error
+            logging.exception('Couldn\'t terminate ' + proc_with_pid)
+        else: # Report success
+            logging.info('Terminated ' + proc_with_pid)
 
 
 class BenchmarkConfig(collections.OrderedDict):
