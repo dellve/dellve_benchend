@@ -42,7 +42,7 @@ logging.config.dictConfig({
     'formatters': {
         'verbose': {
             'datefmt': '%Y-%m-%d %H:%M:%S',
-            'format': '\n\%(levelname)s -- %(asctime)s\n'
+            'format': '\n%(levelname)s -- %(asctime)s\n'
                       '\n'
                       '    File:           %(filename)s\n'
                       '    Line:           %(lineno)d\n'
