@@ -18,6 +18,7 @@ install:
     - easy_install -U pip
     - easy_install -U setuptools
     - virtualenv venv --no-site-packages && source venv/bin/activate
+    - pip install -r requirements.txt
     - pip install .
     # - pip install coverage    # may need this later for code coverage
     # - pip install coveralls   # may need this later for code coverage
