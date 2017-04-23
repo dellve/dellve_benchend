@@ -30,13 +30,13 @@ class HttpAPI(falcon.API):
 
     class BenchmarkStartRoute(HttpRoute):
         url = '/benchmark/{bid}/start'
-        def on_get(self, req, res, bid):
-            return self.api._get_benchmark_start(req, res, int(bid))
+        def on_post(self, req, res, bid):
+            return self.api._post_benchmark_start(req, res, int(bid))
 
     class BenchmarkStopRoute(HttpRoute):
         url = '/benchmark/{bid}/stop'
-        def on_get(self, req, res, bid):
-            return self.api._get_benchmark_stop(req, res, int(bid))
+        def on_post(self, req, res, bid):
+            return self.api._post_benchmark_stop(req, res, int(bid))
 
     class BenchmarkProgressRoute(HttpRoute):
         url = '/benchmark/progress'
@@ -86,11 +86,12 @@ class HttpAPI(falcon.API):
         res.status = falcon.HTTP_200
         res.content_type = 'application/json'
         res.body = json.dumps([{
+            'config': benchmark.config,
             'id': benchmark_id,
-            'name': benchmark.name
+            'name': benchmark.name,
         } for benchmark_id, benchmark in enumerate(self._benchmarks)])
 
-    def _get_benchmark_start(self, req, res, bid):
+    def _post_benchmark_start(self, req, res, bid):
         """Summary
 
         Args:
@@ -106,11 +107,12 @@ class HttpAPI(falcon.API):
             res.content_type = 'application/json'
             if not self._current_benchmark or \
                 not self._current_benchmark.is_running():
-                self._current_benchmark = self._benchmarks[bid]()
+                config = json.load(req.stream)
+                self._current_benchmark = self._benchmarks[bid](config)
                 self._current_benchmark.start()
                 self._current_benchmark_id = bid
 
-    def _get_benchmark_stop(self, req, res, bid):
+    def _post_benchmark_stop(self, req, res, bid):
         """Summary
 
         Args:

@@ -1,6 +1,7 @@
 import dellve.api
 import dellve.benchmark
 import falcon.testing
+import json
 import multiprocessing as mp
 import pytest
 import time
@@ -15,7 +16,7 @@ class MockBenchmark(dellve.benchmark.Benchmark):
     """
     name = 'MockBenchmark'
 
-    config = dellve.benchmark.BenchmarkConfig([])
+    config = dellve.benchmark.BenchmarkConfig([('key', 'value')])
 
     def routine(self):
         try:
@@ -36,7 +37,11 @@ def test_get_benchmark():
     client = falcon.testing.TestClient(dellve_api)
 
     # Define expected 'reference' output
-    ref = [{u'id': 0, u'name': u'MockBenchmark'}]
+    ref = [{
+        u'config': MockBenchmark.config,
+        u'id': 0,
+        u'name': MockBenchmark.name
+    }]
 
     # Get actual output from API
     res = client.simulate_get('/benchmark')
@@ -62,7 +67,8 @@ def test_get_benchmark_bid_start_stop():
 
     for _ in range(0, 5):
         # Start benchmark through REST API
-        res = client.simulate_get('/benchmark/0/start')
+        res = client.simulate_post('/benchmark/0/start',
+            body=json.dumps({'key': 'value'}))
         time.sleep(1) # give benchmark some time to start
 
         # Update reference counter
@@ -72,7 +78,7 @@ def test_get_benchmark_bid_start_stop():
         assert start_counter.value == start_counter_reference
 
         # Stop benchmark through REST API
-        res = client.simulate_get('/benchmark/0/stop')
+        res = client.simulate_post('/benchmark/0/stop')
         time.sleep(1) # give benchmark some time to stop
 
         # Update reference counter
@@ -101,7 +107,8 @@ def test_get_benchmark_progress():
     }
 
     # Start benchmark through REST API
-    res = client.simulate_get('/benchmark/0/start')
+    res = client.simulate_post('/benchmark/0/start',
+        body=json.dumps({'key': 'value'}))
     time.sleep(1) # give benchmark some time to start
 
     # Get progress after benchmark is running
@@ -115,6 +122,6 @@ def test_get_benchmark_progress():
     }
 
     # Stop benchmark through REST API
-    res = client.simulate_get('/benchmark/0/stop')
+    res = client.simulate_post('/benchmark/0/stop')
     time.sleep(1) # give benchmark some time to stop
 
