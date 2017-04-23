@@ -47,6 +47,8 @@ class Benchmark(mp.Process):
         if value < 0 or value > 100:
             raise ValueError(value)
         self.__progress.value = value
+        # Provide debuggin info
+        logging.debug('%s progress set to %d' % (self.name, value))
 
     @property
     def output(self):
@@ -57,15 +59,41 @@ class Benchmark(mp.Process):
     def run(self, debug=False):
         # Create SIGTERM handler
         def handler(*args, **kwargs):
+            # Provide debugging info
+            logging.debug('Received SIGTERM interrupt in %s ' % self.name + \
+                          'with progress %d' % self.progress)
+            # Raise to interrupt routine
             raise BenchmarkInterrupt()
+
         # Register SIGTERM handler
         signal.signal(signal.SIGTERM, handler)
+
         # Re-map STDOUT and STDERR
-        if not debug:
-            # Note: if debugging is enabled we 'print' as usual
-            sys.stdout = sys.stderr = BenchmarkIO(self.__queue)
-        # Start benchmark routine
-        self.routine()
+        sys.stdout = BenchmarkIO(self.__queue, sys.stdout if debug else None)
+        sys.stderr = BenchmarkIO(self.__queue, sys.stderr if debug else None)
+
+        # Provide logging info
+        logging.info('Started ' + self.name + ' in debug mode' if debug else '')
+
+        try: # Start routine
+            self.routine()
+        except BenchmarkInterrupt as e: # Report interrupt
+            logging.info('Stopped %s due to interrupt' % self.name)
+        except: # Report error
+            logging.exception('Stopped %s due to exception' % self.name)
+        else: # Report success
+            # Let users know benchmark stopped with certain progress
+            logging.info('Stopped {benchmark} with progress {progress}'.format({
+                'benchmark': self.name,
+                'progress': self.progress
+            }))
+
+            # Let users see benchmark output
+            logging.info('{benchmark} output dump:\n\n{output}'.format({
+                'benchmark': self.name,
+                'output': ''.join(self.output)
+            }))
+
 
     @abc.abstractproperty
     def config(self):
@@ -167,9 +195,12 @@ class BenchmarkIO(StringIO.StringIO):
     """Helper class for collecting output from DELLve benchmarks.
     """
 
-    def __init__(self, queue, *args, **kwargs):
-        StringIO.StringIO.__init__(self, *args, **kwargs)
+    def __init__(self, queue, ofile=None):
+        StringIO.StringIO.__init__(self)
         self.__queue = queue  # IPC queue
+        self.__ofile = ofile  # Output file
 
     def write(self, s):
         self.__queue.put(s)
+        if self.__ofile is not None:
+            self.__ofile.write(s)
