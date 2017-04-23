@@ -73,7 +73,8 @@ class Benchmark(mp.Process):
         sys.stderr = BenchmarkIO(self.__queue, sys.stderr if debug else None)
 
         # Provide logging info
-        logging.info('Started ' + self.name + ' in debug mode' if debug else '')
+        logging.info('Started ' + self.name +
+                    (' in debug mode' if debug else ''))
 
         try: # Start routine
             self.routine()
