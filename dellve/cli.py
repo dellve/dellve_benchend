@@ -89,13 +89,20 @@ def status():
     click.echo('Getting benchmark status...')
     daemon.Daemon().do_action('status')
 
-
 @cli.command('stop', short_help='Stop the benchmark service.')
 def stop():
     """Stops DELLve benchmark background service.
     """
     click.echo('Stopping benchmark service...')
     daemon.Daemon().do_action('stop')
+
+@cli.command('restart', short_help='Restart the benchmark service.')
+def stop():
+    """Restarts DELLve benchmark background service.
+    """
+    click.echo('Restarting benchmark service...')
+    daemon.Daemon().do_action('restart')
+
 
 @cli.command('run', short_help='Runs the benchmarks either locally or remotely.')
 @click.option('--server', '-s', 'api', help='Host and port of remote server API.',
