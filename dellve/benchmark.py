@@ -82,23 +82,16 @@ class Benchmark(mp.Process):
             logging.info('Stopped %s due to interrupt' % self.name)
         except: # Report error
             logging.exception('Stopped %s due to exception' % self.name)
-        finally: # Dump benchmark output
-            # # Let users know benchmark stopped with certain progress
-            # logging.info('{benchmark} stopped with progress {progress}'.format({
-            #     'benchmark': self.name,
-            #     'progress': self.progress
-            # }))
-
-            # Let users see benchmark output
-            logging.info('{benchmark} output dump:\n\n{output}'.format({
-                'benchmark': self.name,
-                'output': ''.join(self.output)
-            }))
-
-            # Flush buffers
-            logging.shutdown()
-
-
+        else: # Rerport success
+            logging.info('{benchmark} stopped with progress {progress}'.format(
+                benchmark=self.name,
+                progress=self.progress
+            ))
+        finally: # Report benchmark output
+            logging.info('{benchmark} output dump:\n\n{output}'.format(
+                benchmark=self.name,
+                output=''.join(self.output)
+            ))
 
     @abc.abstractproperty
     def config(self):
