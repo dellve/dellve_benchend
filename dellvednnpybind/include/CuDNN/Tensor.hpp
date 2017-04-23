@@ -4,7 +4,9 @@
 #include <cudnn.h>
 
 #include <memory>
+#include <numeric>
 #include <tuple>
+#include <vector>
 
 #include "Buffer.hpp"
 #include "DataType.hpp"
