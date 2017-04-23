@@ -17,6 +17,10 @@ python:
 install:
     - easy_install -U pip
     - easy_install -U setuptools
+    - easy_install -U virtualenv
+    - pip --version
+    - setuptools --version
+    - virtualenv --version
     - virtualenv venv --no-site-packages && source venv/bin/activate
     - pip install -r requirements.txt
     - pip install .
