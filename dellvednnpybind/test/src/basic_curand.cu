@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     CuRAND::Generator gen;
     auto runs = 3;
     for(int i = 0; i < runs; i++) {
-        CuRAND::checkStatus(curandGenerateUniformDouble(gen, input, size));
+        gen.generateUniform(input, size);
         printf("\n\n");
         printf("---------------------------------\n");
         printf("     AFTER RANDOM GENERATOR\n");
