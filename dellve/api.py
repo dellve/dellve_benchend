@@ -43,6 +43,11 @@ class HttpAPI(falcon.API):
         def on_get(self, req, res):
             return self.api._get_benchmark_progress(req, res)
 
+    class HeartbeatRoute(HttpRoute):
+        url = '/heartbeat'
+        def on_get(self, req, res):
+            res.status = falcon.HTTP_200
+
     def __init__(self, benchmarks=config.get('benchmarks')):
         """Constructs a new HttpAPI instance.
 
