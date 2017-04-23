@@ -15,6 +15,7 @@ python:
     # - "3.7-dev" # 3.7 development branch
     # - "nightly" # currently points to 3.7-dev
 install:
+    - easy_install -U setuptools
     - virtualenv venv --no-site-packages
     - source venv/bin/activate
     - pip install . &> log.txt || { echo 'pip install failed' ; cat log.txt ; exit -1; }
