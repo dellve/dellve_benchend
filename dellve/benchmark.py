@@ -16,6 +16,9 @@ class Benchmark(mp.Process):
 
     __metaclass__ = abc.ABCMeta
 
+    """Defines benchmark configuration options"""
+    config = {}
+
     def __init__(self, config=None):
         """Constructs a new Benchmark instance.
         """
@@ -28,8 +31,7 @@ class Benchmark(mp.Process):
         if config is not None:
             if not isinstance(config, dict):
                 raise TypeError(config)
-            else:
-                self.config = config
+            self.config.update(config)
 
     @property
     def progress(self):
@@ -92,10 +94,6 @@ class Benchmark(mp.Process):
                 benchmark=self.name,
                 output=''.join(self.output)
             ))
-
-    @abc.abstractproperty
-    def config(self):
-        """Defines benchmark configuration options"""
 
     @abc.abstractmethod
     def routine(self):
