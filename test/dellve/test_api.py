@@ -123,7 +123,7 @@ def test_get_benchmark_progress():
         'id':           None,
         'name':         None,
         'progress':     None,
-        'run_detail':   None,
+        'output':       None,
         'running':      None
     }
 
@@ -138,7 +138,7 @@ def test_get_benchmark_progress():
         'id':           0,
         'name':         'MockBenchmark',
         'progress':     50,
-        'run_detail':   '',
+        'output':       [],
         'running':      True
     }
 
