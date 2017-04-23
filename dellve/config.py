@@ -1,5 +1,6 @@
 import click
 import json
+import logging
 import logging.config
 import os
 import os.path
@@ -11,6 +12,7 @@ import shutil
 APP_NAME = 'dellve'
 DEFAULT_APP_DIR = click.get_app_dir(APP_NAME)
 DEFAULT_LOG_DIR = os.path.join(DEFAULT_APP_DIR, 'logs')
+DEFAULT_DEBUG = False
 DEFAULT_HTTP_HOST = '127.0.0.1'
 DEFAULT_HTTP_PORT = 9999
 DEFAULT_BENCHMARKS = map(lambda item: item.load(),
@@ -36,10 +38,19 @@ if not os.path.exists(DEFAULT_CONFIG_FILE):
 shutil.copy(os.path.join(os.path.dirname(__file__), 'data/config.json'),
             os.path.join(DEFAULT_APP_DIR, 'default.config.json'))
 
+
 # Configure logging
 logging.config.dictConfig({
     'version': 1,
+    'filters': {
+        'debug-logging-filter': {
+            'class': 'dellve.util.DebugLoggingFilter'
+        }
+    },
     'formatters': {
+        'message': {
+            'format': ' %(levelname)s: %(message)s'
+        },
         'verbose': {
             'datefmt': '%Y-%m-%d %H:%M:%S',
             'format': '\n%(levelname)s -- %(asctime)s\n'
@@ -55,6 +66,10 @@ logging.config.dictConfig({
         },
     },
     'handlers': {
+        'click-logging-handler': {
+            'class': 'dellve.util.ClickLoggingHandler',
+            'formatter': 'message',
+        },
         'rotating-file-handler': {
             'backupCount': 4, # always keep last 4 logging files
             'class': 'logging.handlers.TimedRotatingFileHandler',
@@ -66,9 +81,9 @@ logging.config.dictConfig({
         }
     },
     'root': {
-        'level': 'DEBUG',
+        'filters': ['debug-logging-filter'],
+        'handlers': ['click-logging-handler', 'rotating-file-handler'],
         'propagate': True,
-        'handlers': ['rotating-file-handler'],
     }
 })
 
@@ -83,6 +98,7 @@ __config = {
     'app-dir':      DEFAULT_APP_DIR,
     'benchmarks':   DEFAULT_BENCHMARKS,
     'config-file':  DEFAULT_CONFIG_FILE,
+    'debug':        DEFAULT_DEBUG,
     'http-host':    DEFAULT_HTTP_HOST,
     'http-port':    DEFAULT_HTTP_PORT,
     'pid-file':     DEFAULT_PID_FILE,

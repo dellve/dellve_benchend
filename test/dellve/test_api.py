@@ -66,7 +66,28 @@ def test_get_benchmark_bid_start_stop():
     stop_counter_reference = stop_counter.value
 
     for _ in range(0, 5):
-        # Start benchmark through REST API
+        # Start benchmark through REST API (no body)
+        res = client.simulate_post('/benchmark/0/start')
+        time.sleep(1) # give benchmark some time to start
+
+        # Update reference counter
+        start_counter_reference += 1
+
+        # Make sure benchmark[0] indeed started
+        assert start_counter.value == start_counter_reference
+
+        # Stop benchmark through REST API
+        res = client.simulate_post('/benchmark/0/stop')
+        time.sleep(1) # give benchmark some time to stop
+
+        # Update reference counter
+        stop_counter_reference += 1
+
+        # Make sure benchmark[0] indeed stopped
+        assert stop_counter.value == stop_counter_reference
+
+    for _ in range(0, 5):
+        # Start benchmark through REST API (json body)
         res = client.simulate_post('/benchmark/0/start',
             body=json.dumps({'key': 'value'}))
         time.sleep(1) # give benchmark some time to start

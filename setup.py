@@ -32,7 +32,8 @@ setuptools.setup(
         'pytest-runner'
     ],
     tests_require=[
-        'pytest'
+        'pytest',
+        'responses'
     ],
     entry_points='''
         [console_scripts]
