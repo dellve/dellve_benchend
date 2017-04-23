@@ -36,18 +36,20 @@ namespace CuRAND {
                   Ordering order = CURAND_ORDERING_PSEUDO_SEEDED) :
                   generatorPtr(std::make_shared<RawGenerator>(type)) {
             SetPseudoRandomGeneratorSeed(seed);
-            SetGeneratorOrdering(order);
+            setOrdering(order);
+        }
+
+        void setOffset(unsigned long long offset) {
+            checkStatus(curandSetGeneratorOffset(*this, offset));
+        }
+
+        void setOrdering(curandOrdering_t order) {
+            checkStatus(curandSetGeneratorOrdering(*this, order));
         }
 
         void SetPseudoRandomGeneratorSeed(unsigned long long seed) {
-            struct RawGenerator *generator = generatorPtr.get();
-            checkStatus(curandSetPseudoRandomGeneratorSeed(*generator, seed));
+            checkStatus(curandSetPseudoRandomGeneratorSeed(*this, seed));
         } 
-
-        void SetGeneratorOrdering(Ordering order) {
-            struct RawGenerator *generator = generatorPtr.get();
-            checkStatus(curandSetGeneratorOrdering(*generator, order));
-        }
 
         void generate(unsigned int *buffer, size_t n) {
             checkStatus(curandGenerate(*this, buffer, n));
