@@ -67,7 +67,7 @@ def ls(server):
 
     # Get list of benchmarks from API
     benchmarks = util.api_get('benchmark',
-        err_msg='Unable to query installed benchmarks')
+        err_msg='Unable to query installed benchmarks').json()
 
     # Show list of benchmarks in pretty format
     click.echo('\n'.join(['    ' + b['name'] for b in benchmarks]))
@@ -140,7 +140,7 @@ def run(server):
 
     # Get list of benchmarks from API
     benchmarks = util.api_get('benchmark',
-        err_msg='Unable to query installed benchmarks')
+        err_msg='Unable to query installed benchmarks').json()
 
     # Ensure there're some benchmarks to be run
     if (len(benchmarks) < 1):
@@ -169,7 +169,7 @@ def run(server):
         if run_benchmark:
             _id = run_benchmark['id']
             name = benchmarks[_id].name
-            if util.post('benchmark/%d/stop', _id).ok:
+            if util.api_post('benchmark/%d/stop', _id).ok:
                 click.echo('Stopping %s benchmark...OK' % name)
             else:
                 click.echo('Stopping %s benchmark...FAILED' % name)
@@ -181,7 +181,7 @@ def run(server):
 
     # Helper function for getting benchmark progress
     get_progress = lambda: util.api_get('benchmark/progress',
-        err_msg='Unable to query benchmark progress')
+        err_msg='Unable to query benchmark progress').json()
 
     # Run benchmarks
     for b in benchmarks:

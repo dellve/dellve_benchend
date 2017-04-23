@@ -15,6 +15,7 @@ def api_url(url, *args, **kwargs):
 
 def api_get(url, *args, **kwargs):
     # Get arguments
+    code = kwargs.setdefault('data', 200)
     err_msg = kwargs.setdefault('err_msg', None)
     # Get url
     url = api_url(url, *args)
@@ -30,8 +31,8 @@ def api_get(url, *args, **kwargs):
     except:
         raise click.ClickException(m)
     else:
-        if res.status_code == 200:
-            return res.json()
+        if res.status_code == code:
+            return res
         if err_msg:
             logging.error(err_msg)
         raise click.ClickException(m)
@@ -39,6 +40,7 @@ def api_get(url, *args, **kwargs):
 
 def api_post(url, *args, **kwargs):
     # Get arguments
+    code = kwargs.setdefault('code', 200)
     data = kwargs.setdefault('data', {})
     err_msg = kwargs.setdefault('err_msg', None)
     # Get url
@@ -55,8 +57,8 @@ def api_post(url, *args, **kwargs):
     except:
         raise click.ClickException(m)
     else:
-        if res.status_code == 200:
-            return res.json()
+        if res.status_code == code:
+            return res
         if err_msg:
             logging.error(err_msg)
         raise click.ClickException(m)
