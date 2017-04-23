@@ -151,7 +151,7 @@ class HttpAPI(falcon.API):
                     'id':           self._current_benchmark_id,
                     'name':         self._current_benchmark.name,
                     'progress':     self._current_benchmark.progress,
-                    'run_detail':   '', # TODO: return something meaningful!
+                    'output':       self._current_benchmark.output,
                     'running':      self._current_benchmark.is_running()
                 })
             else:
@@ -159,7 +159,7 @@ class HttpAPI(falcon.API):
                     'id':           None,
                     'name':         None,
                     'progress':     None,
-                    'run_detail':   None,
+                    'output':       None,
                     'running':      None
                 })
 
