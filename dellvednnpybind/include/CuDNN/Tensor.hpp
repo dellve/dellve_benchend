@@ -80,10 +80,6 @@ namespace CuDNN {
  				n, c, h, w )
 	 		);
     	}
-    
-    	// static auto createRandNCHW ( int n, int c, int h, int w ) {
-    	
-    	// }
 			
 	 	static Tensor<T> 
 	 	createNHWC ( int n, int h, int w, int c, T fillValue = 0 ) {
@@ -106,10 +102,6 @@ namespace CuDNN {
  				n, h, w, c )
 	 		);
     	}
-    
-    	// static auto createRandNHWC ( int n, int c, int h, int w ) {
-
-    	// }
 
 	    static Tensor<T>
 	    create (
@@ -125,22 +117,6 @@ namespace CuDNN {
  				strides.data() )
 	 		);
 	    }
-
-	   //  static auto createRand ( 
-	   //  	const std::vector<int>& dims, 
-	   //  	const std::vector<int>& strides ) 
-	   //  {
-	   //  	return std::make_tuple (
-	 		// 	Tensor(dims),
-	 		// 	TensorDescriptor ( 
-	 		// 		&cudnnSetTensorNdDescriptor, 
-	 		// 		CuDNN::dataType<T>::type, 
-	 		// 		dims.size(),
-	 		// 		dims.data(),
-	 		// 		strides.data() )
-	 		// );
-	   //  }
-
 	};
 
 }
