@@ -107,7 +107,7 @@ def stop():
 @cli.command('restart', short_help='Restart the benchmark service.')
 @click.option('--debug', 'debug', default=False,
               help='Turn on debug mode.', is_flag=True)
-def restart():
+def restart(debug):
     """Restarts DELLve benchmark background service.
     """
     # Overwrite config values
