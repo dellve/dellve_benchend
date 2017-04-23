@@ -97,7 +97,7 @@ def stop():
     daemon.Daemon().do_action('stop')
 
 @cli.command('restart', short_help='Restart the benchmark service.')
-def stop():
+def restart():
     """Restarts DELLve benchmark background service.
     """
     click.echo('Restarting benchmark service...')
