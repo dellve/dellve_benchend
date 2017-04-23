@@ -107,7 +107,10 @@ class HttpAPI(falcon.API):
             res.content_type = 'application/json'
             if not self._current_benchmark or \
                 not self._current_benchmark.is_running():
-                config = json.load(req.stream)
+                try: # Load config from request body
+                    config = dict(json.load(req.stream))
+                except ValueError:
+                    config = {}
                 self._current_benchmark = self._benchmarks[bid](config)
                 self._current_benchmark.start()
                 self._current_benchmark_id = bid
