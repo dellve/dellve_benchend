@@ -25,6 +25,12 @@ def cli(config_file):
     config.load(config_file)  # load DELLve configuration
 
 
+@cli.command('dir', short_help='Show application directory.')
+def dir():
+    """Show DELLve application directory path.
+    """
+    click.echo(config.get('app-dir'))
+
 @cli.command('config', short_help='Edit the configuration file.')
 def _config():
     """Opens DELLve configuration file in default editor.
@@ -80,8 +86,6 @@ def ls(server):
 def start(no_detach):
     """Starts DELLve benchmark background service.
     """
-    # Let user's know what's going on
-    click.echo('Starting benchmark service...')
     # Delegate task to daemon
     daemon.Daemon(no_detach).do_action('start')
 
@@ -89,8 +93,6 @@ def start(no_detach):
 def status():
     """Gets the status DELLve benchmark background service.
     """
-    # Let user's know what's going on
-    click.echo('Getting benchmark status...')
     # Delegate task to daemon
     daemon.Daemon().do_action('status')
 
@@ -98,8 +100,6 @@ def status():
 def stop():
     """Stops DELLve benchmark background service.
     """
-    # Let user's know what's going on
-    click.echo('Stopping benchmark service...')
     # Delegate task to daemon
     daemon.Daemon().do_action('stop')
 
@@ -107,8 +107,6 @@ def stop():
 def restart():
     """Restarts DELLve benchmark background service.
     """
-    # Let user's know what's going on
-    click.echo('Restarting benchmark service...')
     # Delegate task to daemon
     daemon.Daemon().do_action('restart')
 
