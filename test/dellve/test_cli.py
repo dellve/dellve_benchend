@@ -39,17 +39,17 @@ def test_start_status_stop(runner, benchmarks):
 
     # Invoke CLI 'start' command
     result = runner.invoke(dellve.cli.start)
-    assert result.output == 'Starting benchmark service...\n'
+    assert result.output == ''
     assert result.exit_code == -1
 
     # Invoke CLI 'status' command
     result = runner.invoke(dellve.cli.status)
-    assert result.output == 'Getting benchmark status...\n'
+    assert result.output == ''
     assert result.exit_code == -1
 
     # Invoke CLI 'stop' command
     result = runner.invoke(dellve.cli.stop)
-    assert result.output == 'Stopping benchmark service...\n'
+    assert result.output == ''
     assert result.exit_code == -1
 
 '''
