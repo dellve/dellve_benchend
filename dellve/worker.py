@@ -66,7 +66,6 @@ class Worker(WorkerAPI):
         # TODO: this can be eliminated if we configure logging system
         #       to print INFO messages to STDOUT in config.py logging setup
         #
-        print 'Starting dellve worker ... OK'
         logging.info('Started dellve worker')
 
         # Note: we could use self._server.serve_forever() here, but since we
@@ -116,8 +115,6 @@ class Worker(WorkerAPI):
             #
             # TODO: this can be eliminated if we configure logging system
             #       to print INFO messages to STDOUT in config.py logging setup
-            #
-            print 'Stopping dellve worker ... OK'
             logging.info('Stopped dellve worker')
 
         # Wait for server to stop...
