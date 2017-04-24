@@ -168,7 +168,9 @@ def run(server):
     def handler(signum, frame):
         if run_benchmark:
             _id = run_benchmark['id']
-            name = benchmarks[_id]['name']
+            for b in benchmarks:
+                if b['id'] == _id:
+                    name = b['name']
             if util.api_post('benchmark/%d/stop', _id).ok:
                 click.echo('Stopping %s benchmark...OK' % name)
             else:
