@@ -167,5 +167,5 @@ class HttpAPI(falcon.API):
 
 class RequestLoggingMiddleware(object):
     def process_request(self, req, resp):
-        logging.info('HTTP API -- {0} {1} {2}'
+        logging.debug('HTTP API -- {0} {1} {2}'
             .format(req.method, req.relative_uri, resp.status[:3]))
