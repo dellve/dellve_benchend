@@ -74,17 +74,16 @@ def ls(server):
 
 
 @cli.command('start', short_help='Start the benchmark service.')
-@click.option('--debug', 'debug', default=False,
-              help='Turn on debug mode.', is_flag=True)
-def start(debug):
+@click.option('--no-detach', 'no_detach', default=False,
+              help='Start without detaching background daemon.',
+              is_flag=True)
+def start(no_detach):
     """Starts DELLve benchmark background service.
     """
-    # Overwrite config values
-    config.set('debug', debug)
     # Let user's know what's going on
     click.echo('Starting benchmark service...')
     # Delegate task to daemon
-    daemon.Daemon(debug=debug).do_action('start')
+    daemon.Daemon(no_detach).do_action('start')
 
 @cli.command('status', short_help='Get the status of benchmark service.')
 def status():
@@ -105,13 +104,9 @@ def stop():
     daemon.Daemon().do_action('stop')
 
 @cli.command('restart', short_help='Restart the benchmark service.')
-@click.option('--debug', 'debug', default=False,
-              help='Turn on debug mode.', is_flag=True)
-def restart(debug):
+def restart():
     """Restarts DELLve benchmark background service.
     """
-    # Overwrite config values
-    config.set('debug', debug)
     # Let user's know what's going on
     click.echo('Restarting benchmark service...')
     # Delegate task to daemon
