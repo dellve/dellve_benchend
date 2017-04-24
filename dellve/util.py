@@ -5,6 +5,9 @@ import multiprocessing as mp
 import requests
 import sys
 
+# DELLve logger
+logger = logging.getLogger('dellve-logger')
+
 
 def api_url(url, *args, **kwargs):
     host = kwargs.setdefault('host', config.get('http-host'))
@@ -34,7 +37,7 @@ def api_get(url, *args, **kwargs):
         if res.status_code == code:
             return res
         if err_msg:
-            logging.error(err_msg)
+            logger.error(err_msg)
         raise click.ClickException(m)
 
 
@@ -60,17 +63,8 @@ def api_post(url, *args, **kwargs):
         if res.status_code == code:
             return res
         if err_msg:
-            logging.error(err_msg)
+            logger.error(err_msg)
         raise click.ClickException(m)
-
-
-class DebugLoggingFilter(logging.Filter):
-
-    def filter(self, rec):
-        if config.get('debug'):
-            return rec.levelno >= logging.DEBUG
-        else:
-            return rec.levelno >= logging.INFO
 
 
 class ClickLoggingHandler(logging.Handler):

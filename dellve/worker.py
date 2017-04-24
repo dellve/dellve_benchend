@@ -8,6 +8,10 @@ import logging
 import sys
 import traceback
 
+# DELLve logger
+logger = logging.getLogger('dellve-logger')
+
+
 class WorkerAPI(object):
     """Abstract DELLve background worker interface"""
 
@@ -66,7 +70,7 @@ class Worker(WorkerAPI):
         # TODO: this can be eliminated if we configure logging system
         #       to print INFO messages to STDOUT in config.py logging setup
         #
-        logging.info('Started dellve worker')
+        logger.info('Started dellve worker')
 
         # Note: we could use self._server.serve_forever() here, but since we
         #       need to notify user about successful server start, we rely
@@ -76,10 +80,10 @@ class Worker(WorkerAPI):
         try: # Start server...
             self._server.start()
         except Exception: # Report unsuccessful server start
-            logging.exception('Couldn\'t start dellve HTTP server')
+            logger.exception('Couldn\'t start dellve HTTP server')
             return # there's nothing we can do without server running
         else: # Report successful server start
-            logging.info('Started dellve HTTP server')
+            logger.info('Started dellve HTTP server')
 
         # Wait for exit...
         self._exit.wait()
@@ -102,10 +106,10 @@ class Worker(WorkerAPI):
             try: # Stop server...
                 self._server.stop()
             except Exception: # Report unsuccessful server stop
-                logging.exception('Couldn\'t stop dellve HTTP server')
+                logger.exception('Couldn\'t stop dellve HTTP server')
                 return # there's nothing we can do with server running
             else: # Report successful server stop
-                logging.info('Stopped dellve HTTP server')
+                logger.info('Stopped dellve HTTP server')
 
             # Request exit!
             self._exit.set()
@@ -115,7 +119,7 @@ class Worker(WorkerAPI):
             #
             # TODO: this can be eliminated if we configure logging system
             #       to print INFO messages to STDOUT in config.py logging setup
-            logging.info('Stopped dellve worker')
+            logger.info('Stopped dellve worker')
 
         # Wait for server to stop...
         gevent.spawn(stop_server)

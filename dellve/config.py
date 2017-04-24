@@ -42,17 +42,14 @@ shutil.copy(os.path.join(os.path.dirname(__file__), 'data/config.json'),
 # Configure logging
 logging.config.dictConfig({
     'version': 1,
-    'filters': {
-        'debug-logging-filter': {
-            'class': 'dellve.util.DebugLoggingFilter'
-        }
-    },
     'formatters': {
         'message': {
             'format': ' %(levelname)s: %(message)s'
         },
+        'request': {
+            'format':  '%(levelname)s -- %(asctime)s\n -- %(message)s\n'
+        },
         'verbose': {
-            'datefmt': '%Y-%m-%d %H:%M:%S',
             'format': '\n%(levelname)s -- %(asctime)s\n'
                       '\n'
                       '    File:           %(filename)s\n'
@@ -70,22 +67,40 @@ logging.config.dictConfig({
             'class': 'dellve.util.ClickLoggingHandler',
             'formatter': 'message',
         },
-        'rotating-file-handler': {
-            'backupCount': 4, # always keep last 4 logging files
+        'dellve-logging-handler': {
+            'backupCount': 7, # always keep last 7 logging files
             'class': 'logging.handlers.TimedRotatingFileHandler',
             'filename': os.path.join(DEFAULT_LOG_DIR, 'log'),
             'formatter': 'verbose',
+            'interval': 1, # create new logging file every day
+            'level': 'DEBUG',
+            'when': 'D',
+        },
+        'http-api-logging-handler': {
+            'backupCount': 4, # always keep last 4 logging files
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'filename': os.path.join(DEFAULT_LOG_DIR, 'http-api-log'),
+            'formatter': 'request',
             'interval': 15, # create new logging file every 15 minutes
             'level': 'DEBUG',
             'when': 'M',
+        },
+    },
+    'loggers': {
+        'dellve-logger': {
+            'handlers': ['dellve-logging-handler'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'http-api-logger': {
+            'handlers': ['http-api-logging-handler'],
+            'level': 'DEBUG',
+            'propagate': True,
         }
     },
-    'root': {
-        'filters': ['debug-logging-filter'],
-        'handlers': ['click-logging-handler', 'rotating-file-handler'],
-        'propagate': True,
-    }
 })
+
+# TODO: specify logging configuratin in config.json!
 
 # Private module members (for internal use only)
 #

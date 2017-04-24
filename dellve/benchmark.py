@@ -11,6 +11,9 @@ import signal
 import StringIO
 import sys
 
+# DELLve logger
+logger = logging.getLogger('dellve-logger')
+
 # TODO: add module import time checks for Benchmark.config correctness
 
 class Benchmark(mp.Process):
@@ -54,7 +57,7 @@ class Benchmark(mp.Process):
             raise ValueError(value)
         self.__progress.value = value
         # Provide debuggin info
-        logging.debug('%s progress set to %d' % (self.name, value))
+        logger.debug('%s progress set to %d' % (self.name, value))
 
     @property
     def output(self):
@@ -64,7 +67,7 @@ class Benchmark(mp.Process):
         # Create SIGTERM handler
         def handler(*args, **kwargs):
             # Provide debugging info
-            logging.debug('Received SIGTERM interrupt in %s ' % self.name + \
+            logger.debug('Received SIGTERM interrupt in %s ' % self.name + \
                           'with progress %d' % self.progress)
             # Raise to interrupt routine
             raise BenchmarkInterrupt()
@@ -77,22 +80,22 @@ class Benchmark(mp.Process):
         sys.stderr = BenchmarkIO(self.__iolist, sys.stderr if debug else None)
 
         # Provide logging info
-        logging.info('Started ' + self.name +
+        logger.info('Started ' + self.name +
                     (' in debug mode' if debug else ''))
 
         try: # Start routine
             self.routine()
         except BenchmarkInterrupt as e: # Report interrupt
-            logging.info('Stopped %s due to interrupt' % self.name)
+            logger.info('Stopped %s due to interrupt' % self.name)
         except: # Report error
-            logging.exception('Stopped %s due to exception' % self.name)
+            logger.exception('Stopped %s due to exception' % self.name)
         else: # Rerport success
-            logging.info('{benchmark} stopped with progress {progress}'.format(
+            logger.info('{benchmark} stopped with progress {progress}'.format(
                 benchmark=self.name,
                 progress=self.progress
             ))
         finally: # Report benchmark output
-            logging.info('{benchmark} output dump:\n\n{output}'.format(
+            logger.info('{benchmark} output dump:\n\n{output}'.format(
                 benchmark=self.name,
                 output=''.join(self.output)
             ))
@@ -147,14 +150,14 @@ class Benchmark(mp.Process):
         """
 
         # Provide info for debugging purposes
-        logging.debug('Launching sub-process for %s...' % self.name)
+        logger.debug('Launching sub-process for %s...' % self.name)
 
         try: # Start benchamrk
             mp.Process.start(self)
         except: # Report error
-            logging.exception('Couldn\'t launch sub-process for %s' % self.name)
+            logger.exception('Couldn\'t launch sub-process for %s' % self.name)
         else: # Report success
-            logging.info('Launched sub-process for %s with PID %d' % (self.name,
+            logger.info('Launched sub-process for %s with PID %d' % (self.name,
                                                                       self.pid))
 
     def stop(self):
@@ -169,20 +172,20 @@ class Benchmark(mp.Process):
         proc_with_pid = 'sub-process for %s with PID %d' % (self.name, self.pid)
 
         # Provide info for debugging purposes
-        logging.debug('Terminating ' + proc_with_pid + ' ...')
+        logger.debug('Terminating ' + proc_with_pid + ' ...')
 
         try: # Stop benchamrk
             mp.Process.terminate(self)
         except: # Report error
-            logging.exception('Couldn\'t terminate ' + proc_with_pid)
+            logger.exception('Couldn\'t terminate ' + proc_with_pid)
         else: # Report success
-            logging.info('Terminated ' + proc_with_pid)
+            logger.info('Terminated ' + proc_with_pid)
 
     @classmethod
     def validate(cls, config):
         """Validates configuration object according to classes schema.
         """
-        logging.info(
+        logger.info(
             ('Validating configuration object:\n%s\n' % \
                 json.dumps(config, indent=4, sort_keys=True)) + \
             ('...with configuration schema:\n%s\n' % \
@@ -190,10 +193,10 @@ class Benchmark(mp.Process):
         try: # Validate config object
             jsonschema.validate(config, cls.schema)
         except:
-            logging.exception('Config validation for %s failed' % cls.name)
+            logger.exception('Config validation for %s failed' % cls.name)
             return False
         else:
-            logging.info('Config validation for %s succeeded' % cls.name)
+            logger.info('Config validation for %s succeeded' % cls.name)
             return True
 
 

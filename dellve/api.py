@@ -165,7 +165,10 @@ class HttpAPI(falcon.API):
                     'running':      None
                 })
 
+"""HTTP API logger"""
+logger = logging.getLogger('http-api-logger')
+
 class RequestLoggingMiddleware(object):
     def process_request(self, req, resp):
-        logging.debug('HTTP API -- {0} {1} {2}'
+        logger.info('HTTP API -- {0} {1} {2}'
             .format(req.method, req.relative_uri, resp.status[:3]))
