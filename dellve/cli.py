@@ -168,7 +168,7 @@ def run(server):
     def handler(signum, frame):
         if run_benchmark:
             _id = run_benchmark['id']
-            name = benchmarks[_id].name
+            name = benchmarks[_id]['name']
             if util.api_post('benchmark/%d/stop', _id).ok:
                 click.echo('Stopping %s benchmark...OK' % name)
             else:
@@ -207,7 +207,7 @@ def run(server):
                 time.sleep(0.01)
 
         # Echo out benchmark's output
-        map(click.echo, progress_res['output'])
+        map(click.echo, ''.join(progress_res['output']))
 
 
 @cli.command('new', short_help='Create a new benchmark.')

@@ -1,4 +1,5 @@
 import config
+import copy
 import falcon
 import json
 import gevent
@@ -89,6 +90,7 @@ class HttpAPI(falcon.API):
             'config': benchmark.config,
             'id': benchmark_id,
             'name': benchmark.name,
+            'schema': benchmark.schema,
         } for benchmark_id, benchmark in enumerate(self._benchmarks)])
 
     def _post_benchmark_start(self, req, res, bid):

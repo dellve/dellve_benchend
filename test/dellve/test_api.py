@@ -17,7 +17,16 @@ class MockBenchmark(dellve.benchmark.Benchmark):
     name = 'MockBenchmark'
 
     config = dellve.benchmark.BenchmarkConfig([('key', 'value')])
-
+    schema = {
+        'type': 'object',
+        'properties': {
+            'key': {
+                'description': 'Test config option',
+                'type': 'string',
+            }
+        },
+        'required': ['key']
+    }
     def routine(self):
         try:
             start_counter.value += 1
@@ -40,7 +49,8 @@ def test_get_benchmark():
     ref = [{
         u'config': MockBenchmark.config,
         u'id': 0,
-        u'name': MockBenchmark.name
+        u'name': MockBenchmark.name,
+        u'schema': MockBenchmark.schema,
     }]
 
     # Get actual output from API

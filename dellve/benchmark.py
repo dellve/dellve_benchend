@@ -2,6 +2,8 @@ import abc
 import collections
 import copy
 import ctypes
+import json
+import jsonschema
 import logging
 import multiprocessing as mp
 import pkg_resources
@@ -9,6 +11,7 @@ import signal
 import StringIO
 import sys
 
+# TODO: add module import time checks for Benchmark.config correctness
 
 class Benchmark(mp.Process):
     """Abstract base class for all DELLve benchmarks.
@@ -19,19 +22,20 @@ class Benchmark(mp.Process):
     """Defines benchmark configuration options"""
     config = {}
 
-    def __init__(self, config=None):
+    """Defines benchmark configuration schema"""
+    schema = {}
+
+    def __init__(self, config={}):
         """Constructs a new Benchmark instance.
         """
         mp.Process.__init__(self)
         self.__progress = mp.Value(ctypes.c_float)
-        self.__queue = mp.Queue()
-        self.__output = []
+        self.__iolist = mp.Manager().list()
 
-        # Set config (optionally)
-        if config is not None:
-            if not isinstance(config, dict):
-                raise TypeError(config)
-            self.config.update(config)
+        # Validate configuration
+        if self.validate(config):
+            # Okay, yse provided values
+            self.config = copy.deepcopy(config)
 
     @property
     def progress(self):
@@ -54,9 +58,7 @@ class Benchmark(mp.Process):
 
     @property
     def output(self):
-        for _ in range(0, self.__queue.qsize()):
-            self.__output.append(self.__queue.get())
-        return self.__output
+        return list(self.__iolist)
 
     def run(self, debug=False):
         # Create SIGTERM handler
@@ -71,8 +73,8 @@ class Benchmark(mp.Process):
         signal.signal(signal.SIGTERM, handler)
 
         # Re-map STDOUT and STDERR
-        sys.stdout = BenchmarkIO(self.__queue, sys.stdout if debug else None)
-        sys.stderr = BenchmarkIO(self.__queue, sys.stderr if debug else None)
+        sys.stdout = BenchmarkIO(self.__iolist, sys.stdout if debug else None)
+        sys.stderr = BenchmarkIO(self.__iolist, sys.stderr if debug else None)
 
         # Provide logging info
         logging.info('Started ' + self.name +
@@ -176,14 +178,32 @@ class Benchmark(mp.Process):
         else: # Report success
             logging.info('Terminated ' + proc_with_pid)
 
+    @classmethod
+    def validate(cls, config):
+        """Validates configuration object according to classes schema.
+        """
+        logging.info(
+            ('Validating configuration object:\n%s\n' % \
+                json.dumps(config, indent=4, sort_keys=True)) + \
+            ('...with configuration schema:\n%s\n' % \
+                json.dumps(cls.schema, indent=4, sort_keys=True)))
+        try: # Validate config object
+            jsonschema.validate(config, cls.schema)
+        except:
+            logging.exception('Config validation for %s failed' % cls.name)
+            return False
+        else:
+            logging.info('Config validation for %s succeeded' % cls.name)
+            return True
+
 
 class BenchmarkConfig(collections.OrderedDict):
     """Helper class for defining configuration of DELLve benchmarks.
     """
 
-
 class BenchmarkInterrupt(Exception):
-    """Exception class that is raised when benchmark is interrupted by OS signal.
+    """Exception class that is raised when benchmark is interrupted by OS
+    signal.
     """
 
 
@@ -191,12 +211,12 @@ class BenchmarkIO(StringIO.StringIO):
     """Helper class for collecting output from DELLve benchmarks.
     """
 
-    def __init__(self, queue, ofile=None):
+    def __init__(self, olist, ofile=None):
         StringIO.StringIO.__init__(self)
-        self.__queue = queue  # IPC queue
+        self.__olist = olist  # IPC Output list
         self.__ofile = ofile  # Output file
 
     def write(self, s):
-        self.__queue.put(s)
+        self.__olist.append(s)
         if self.__ofile is not None:
             self.__ofile.write(s)

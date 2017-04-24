@@ -77,5 +77,5 @@ class ClickLoggingHandler(logging.Handler):
 
     def emit(self, rec):
         # If the following is True, we are in main process
-        if type(mp.current_process()) != multiprocessing.Process:
+        if type(mp.current_process()) != mp.Process:
             click.echo(self.format(rec), err=(rec.levelno >= logging.ERROR))

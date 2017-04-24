@@ -23,10 +23,11 @@ setuptools.setup(
         'falcon',
         'gevent',
         'jinja2',
+        'jsonschema',
         'pick',
         'requests',
         'stringcase',
-        'tqdm'
+        'tqdm',
     ],
     setup_requires=[
         'pytest-runner'
