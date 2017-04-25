@@ -144,13 +144,10 @@ def test_get_benchmark_progress():
 
     # Get progress after benchmark is running
     res = client.simulate_get('/benchmark/progress')
-    assert res.json == {
-        'id':           0,
-        'name':         'MockBenchmark',
-        'progress':     50,
-        'output':       [],
-        'running':      True
-    }
+    assert res.json['id'] == 0
+    assert res.json['name'] == 'MockBenchmark'
+    assert res.json['progress'] == 50
+    assert res.json['running'] == True
 
     # Stop benchmark through REST API
     res = client.simulate_post('/benchmark/0/stop')
