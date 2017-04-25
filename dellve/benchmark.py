@@ -8,7 +8,6 @@ import jsonschema
 import logging
 import multiprocessing as mp
 import pkg_resources
-# import yaml
 import signal
 import StringIO
 import sys
@@ -103,19 +102,14 @@ class Benchmark(mp.Process):
             print ''
         print ''
 
-        # Dump configuration into pretty YAML string
-        # yaml_config_str = yaml.dump(dict(self.config), default_flow_style=False)
-        # config_yaml = yaml.dump(dict(self.config), default_flow_style=False)
-
-        # for index, line in enumerate(config_yaml.split('\n')):
-        #     if index == 0:
-        #         print 'Configuration:  %s' % line
-        #     else:
-        #         print '                %s' % line
-
-        print 'Launching benchmark with configuration values: '
-        print json.dumps(self.config, indent=4, separators=(',', ': '))
-
+        # Dump configuration into pretty JSON string
+        config_json = json.dumps(self.config, indent=4, separators=(',', ': '))
+        for index, line in enumerate(config_json.split('\n')):
+            if index == 0:
+                print 'Configuration:  %s' % line
+            else:
+                print '                %s' % line
+        print ''
         print 'Starting time:  %s' % datetime.datetime.now()
         print ''
         print ' -- Entering benchmark routine...'

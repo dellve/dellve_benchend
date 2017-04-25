@@ -25,7 +25,6 @@ setuptools.setup(
         'jinja2',
         'jsonschema',
         'pick',
-        'pyyaml',
         'requests',
         'stringcase',
         'tqdm',
