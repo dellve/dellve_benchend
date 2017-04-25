@@ -157,6 +157,10 @@ def run(server):
     # Create run state
     run_benchmark = {}
 
+    # Helper function for getting benchmark progress
+    get_progress = lambda: util.api_get('benchmark/progress',
+        err_msg='Unable to query benchmark progress').json()
+
     # Define OS signal handlers
     def handler(signum, frame):
         if run_benchmark:
@@ -166,6 +170,7 @@ def run(server):
                     name = b['name']
             if util.api_post('benchmark/%d/stop', _id).ok:
                 click.echo('Stopping %s benchmark...OK' % name)
+                click.echo(''.join(get_progress()['output']))
             else:
                 click.echo('Stopping %s benchmark...FAILED' % name)
         sys.exit(signum) # TODO: set proper exit code
@@ -173,10 +178,6 @@ def run(server):
     # Register SIGINT& SIGTERM handlers
     signal.signal(signal.SIGINT, handler)
     signal.signal(signal.SIGTERM, handler)
-
-    # Helper function for getting benchmark progress
-    get_progress = lambda: util.api_get('benchmark/progress',
-        err_msg='Unable to query benchmark progress').json()
 
     # Run benchmarks
     for b in benchmarks:
@@ -202,7 +203,8 @@ def run(server):
                 time.sleep(0.01)
 
         # Echo out benchmark's output
-        map(click.echo, ''.join(progress_res['output']))
+        # map(click.echo, ''.join(progress_res['output']))
+        click.echo(''.join(progress_res['output']))
 
 
 @cli.command('new', short_help='Create a new benchmark.')

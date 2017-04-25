@@ -2,14 +2,17 @@ import abc
 import collections
 import copy
 import ctypes
+import datetime
 import json
 import jsonschema
 import logging
 import multiprocessing as mp
 import pkg_resources
+import yaml
 import signal
 import StringIO
 import sys
+import time
 
 # DELLve logger
 logger = logging.getLogger('dellve-logger')
@@ -28,12 +31,16 @@ class Benchmark(mp.Process):
     """Defines benchmark configuration schema"""
     schema = {}
 
+    """Defines benchmark description message"""
+    description = ''
+
     def __init__(self, config={}):
         """Constructs a new Benchmark instance.
         """
         mp.Process.__init__(self)
         self.__progress = mp.Value(ctypes.c_float)
         self.__iolist = mp.Manager().list()
+        self.__stopped = mp.Value(ctypes.c_bool, False)
 
         # Validate configuration
         if self.validate(config):
@@ -83,12 +90,46 @@ class Benchmark(mp.Process):
         logger.info('Started ' + self.name +
                     (' in debug mode' if debug else ''))
 
+        yaml_config_str = yaml.dump(dict(self.config), default_flow_style=False)
+
+        # Print header
+        print 'Authors:        Quinito Baula\n'     + \
+              '                Travis Chau\n'       + \
+              '                Abigail Johnson\n'   + \
+              '                Jayesh Joshi\n'      + \
+              '                Konstantyn Komarov'
+        print ''
+        print 'Name:           %s' % self.name
+        if len(self.description):
+            print 'Description:    %s' % self.description
+            print ''
+        print ''
+
+        # Dump configuration into pretty YAML string
+        config_yaml = yaml.dump(dict(self.config), default_flow_style=False)
+
+        for index, line in enumerate(config_yaml.split('\n')):
+            if index == 0:
+                print 'Configuration:  %s' % line
+            else:
+                print '                %s' % line
+        print 'Starting time:  %s' % datetime.datetime.now()
+        print ''
+        print ' -- Entering benchmark routine...'
+        print ''
+
+        # Collect timeing info
+        start_time = time.time()
+        start_iolist_len = len(self.__iolist)
+
         try: # Start routine
             self.routine()
         except BenchmarkInterrupt as e: # Report interrupt
             logger.info('Stopped %s due to interrupt' % self.name)
         except: # Report error
             logger.exception('Stopped %s due to exception' % self.name)
+            # Print out exception info to report
+            print '\n -- Stopping prematurely due to exception!'
         else: # Rerport success
             logger.info('{benchmark} stopped with progress {progress}'.format(
                 benchmark=self.name,
@@ -99,6 +140,22 @@ class Benchmark(mp.Process):
                 benchmark=self.name,
                 output=''.join(self.output)
             ))
+
+            # Collect timing info
+            stop_time = time.time()
+            stop_iolist_len = len(self.__iolist)
+
+            # Reformat benchmark output and print to report
+            for index in range(start_iolist_len, stop_iolist_len):
+                self.__iolist[index] = ('    ' + self.__iolist[index])
+
+            print ''
+            print ' -- Exiting benchmark routine %s...' % \
+                ('due to STOP interrupt' if self.__stopped.value else '')
+            print ''
+            print 'Stopping time:  %s' % datetime.datetime.now()
+            print ''
+            print 'Execution time: %s seconds' % str(stop_time - start_time)
 
     @abc.abstractmethod
     def routine(self):
@@ -173,6 +230,9 @@ class Benchmark(mp.Process):
 
         # Provide info for debugging purposes
         logger.debug('Terminating ' + proc_with_pid + ' ...')
+
+        # Update benchmark state
+        self.__stopped.value = True
 
         try: # Stop benchamrk
             mp.Process.terminate(self)
