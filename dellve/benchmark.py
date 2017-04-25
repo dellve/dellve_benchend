@@ -8,7 +8,7 @@ import jsonschema
 import logging
 import multiprocessing as mp
 import pkg_resources
-import yaml
+# import yaml
 import signal
 import StringIO
 import sys
@@ -90,8 +90,6 @@ class Benchmark(mp.Process):
         logger.info('Started ' + self.name +
                     (' in debug mode' if debug else ''))
 
-        yaml_config_str = yaml.dump(dict(self.config), default_flow_style=False)
-
         # Print header
         print 'Authors:        Quinito Baula\n'     + \
               '                Travis Chau\n'       + \
@@ -106,13 +104,18 @@ class Benchmark(mp.Process):
         print ''
 
         # Dump configuration into pretty YAML string
-        config_yaml = yaml.dump(dict(self.config), default_flow_style=False)
+        # yaml_config_str = yaml.dump(dict(self.config), default_flow_style=False)
+        # config_yaml = yaml.dump(dict(self.config), default_flow_style=False)
 
-        for index, line in enumerate(config_yaml.split('\n')):
-            if index == 0:
-                print 'Configuration:  %s' % line
-            else:
-                print '                %s' % line
+        # for index, line in enumerate(config_yaml.split('\n')):
+        #     if index == 0:
+        #         print 'Configuration:  %s' % line
+        #     else:
+        #         print '                %s' % line
+
+        print 'Launching benchmark with configuration values: '
+        print json.dumps(self.config, indent=4, separators=(',', ': '))
+
         print 'Starting time:  %s' % datetime.datetime.now()
         print ''
         print ' -- Entering benchmark routine...'
@@ -130,20 +133,20 @@ class Benchmark(mp.Process):
             logger.exception('Stopped %s due to exception' % self.name)
             # Print out exception info to report
             print '\n -- Stopping prematurely due to exception!'
-        else: # Rerport success
+        else: # Report success
             logger.info('{benchmark} stopped with progress {progress}'.format(
                 benchmark=self.name,
                 progress=self.progress
             ))
         finally: # Report benchmark output
+            # Collect timing info
+            stop_time = time.time()
+            stop_iolist_len = len(self.__iolist)
+
             logger.info('{benchmark} output dump:\n\n{output}'.format(
                 benchmark=self.name,
                 output=''.join(self.output)
             ))
-
-            # Collect timing info
-            stop_time = time.time()
-            stop_iolist_len = len(self.__iolist)
 
             # Reformat benchmark output and print to report
             for index in range(start_iolist_len, stop_iolist_len):
