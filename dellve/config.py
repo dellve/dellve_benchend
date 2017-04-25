@@ -47,7 +47,7 @@ logging.config.dictConfig({
             'format': ' %(levelname)s: %(message)s'
         },
         'request': {
-            'format':  '%(levelname)s -- %(asctime)s\n -- %(message)s\n'
+            'format':  '%(levelname)s -- %(asctime)s -- %(message)s\n'
         },
         'verbose': {
             'format': '\n%(levelname)s -- %(asctime)s\n'
