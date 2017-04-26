@@ -280,6 +280,3 @@ class BenchmarkIO(StringIO.StringIO):
         self.__olist.append(s)
         if self.__ofile is not None:
             self.__ofile.write(s)
-
-def sort_benchmarks(benchmarks):
-    return benchmarks.sort(key=lambda b: b['name'])
