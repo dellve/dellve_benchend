@@ -98,7 +98,7 @@ class Benchmark(mp.Process):
         print ''
         print 'Name:           %s' % self.name
         if len(self.description):
-            print 'Description:    %s' % self.description
+            print 'Description:    %s' % self.description.replace('\n', '\n                ')
             print ''
         print ''
 
