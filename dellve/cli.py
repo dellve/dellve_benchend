@@ -74,6 +74,7 @@ def ls(server):
     # Get list of benchmarks from API
     benchmarks = util.api_get('benchmark',
         err_msg='Unable to query installed benchmarks').json()
+    benchmark.sort_benchmarks(benchmarks)
 
     # Show list of benchmarks in pretty format
     click.echo('\n'.join(['    ' + b['name'] for b in benchmarks]))
@@ -134,6 +135,7 @@ def run(server):
     # Get list of benchmarks from API
     benchmarks = util.api_get('benchmark',
         err_msg='Unable to query installed benchmarks').json()
+    benchmark.sort_benchmarks(benchmarks)
 
     # Ensure there're some benchmarks to be run
     if (len(benchmarks) < 1):

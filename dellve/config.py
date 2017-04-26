@@ -17,7 +17,8 @@ DEFAULT_HTTP_HOST = '127.0.0.1'
 DEFAULT_HTTP_PORT = 9999
 DEFAULT_BENCHMARKS = map(lambda item: item.load(),
     pr.iter_entry_points(group='dellve.benchmarks', name=None))
-DEFAULT_BENCHMARKS = list(DEFAULT_BENCHMARKS)  # convert generator to list
+DEFAULT_BENCHMARKS = list(DEFAULT_BENCHMARKS)
+DEFAULT_BENCHMARKS.sort(key=lambda b: b.__name__)  # convert generator to list
 DEFAULT_PID_FILE = os.path.join(DEFAULT_APP_DIR, 'dellve.pid')
 DEFAULT_CONFIG_FILE = os.path.join(DEFAULT_APP_DIR, 'config.json')
 
