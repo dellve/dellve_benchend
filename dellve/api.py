@@ -64,6 +64,8 @@ class HttpAPI(falcon.API):
 
         # Save benchmark classes
         self._benchmarks = benchmarks
+        for b in benchmarks:
+            b.init_config()
 
         # Create default state
         self._current_benchmark = None

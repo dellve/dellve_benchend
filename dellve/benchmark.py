@@ -239,6 +239,10 @@ class Benchmark(mp.Process):
             logger.info('Terminated ' + proc_with_pid)
 
     @classmethod
+    def init_config(cls):
+        pass
+
+    @classmethod
     def validate(cls, config):
         """Validates configuration object according to classes schema.
         """
