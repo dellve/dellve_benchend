@@ -42,20 +42,17 @@ API Reference
 
 .. automodule:: dellve.api
 	:members:
+
 .. automodule:: dellve.benchmark
 	:members:
+
 .. automodule:: dellve.config
 	:members:
 
 System Architecture
 ===================
 
-This section is coming soon. Please check back later.
-
-Contributing
-============
-
-This section is coming soon. Please check back later.
+.. image:: packages.png
 
 Licensing
 =========
