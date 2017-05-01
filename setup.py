@@ -8,7 +8,7 @@ import json
 
 setuptools.setup(
     name='dellve',
-    version='0.1.2',
+    version='1.0.0',
     packages=setuptools.find_packages(),
     include_package_data=True,
     package_data={
